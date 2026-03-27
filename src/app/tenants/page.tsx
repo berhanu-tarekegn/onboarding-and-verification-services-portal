@@ -13,48 +13,48 @@ export default async function TenantsPage() {
         { label: "Workspaces", href: "/tenants", routeKey: "tenants" }
       ]}
     >
-      <div className="flex justify-between items-center mb-6">
+      {/* Page header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Active Tenants</h2>
-          <p className="text-sm text-zinc-500 dark:text-slate-400">You have {tenants.length} running workspaces</p>
+          <h2 className="text-lg font-semibold text-zinc-900">Active Tenants</h2>
+          <p className="text-sm text-zinc-400 mt-0.5">You have {tenants.length} running workspaces</p>
         </div>
         <Link
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500 shadow-sm shadow-brand-500/30 transition-all flex items-center gap-2"
+          className="inline-flex items-center gap-2 rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 transition-colors"
           href="/tenants/new"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
             <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
           </svg>
           New Workspace
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Tenant grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {tenants.map((t) => (
-          <div key={t.id} className="sleek-card glass flex flex-col">
-            <div className="p-6 flex-1">
-              <div className="flex items-start justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-100 to-indigo-100 dark:from-brand-900/40 dark:to-indigo-900/40 text-brand-700 dark:text-brand-300 font-bold text-xl mb-4 shadow-inner">
-                  {t.name.substring(0, 1)}
+          <div key={t.id} className="sleek-card flex flex-col">
+            <div className="p-5 flex-1">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-zinc-900 text-white font-semibold text-sm">
+                  {t.name.substring(0, 1).toUpperCase()}
                 </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-medium border border-emerald-200/50 dark:border-emerald-500/20">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 px-2.5 py-0.5 text-xs font-medium text-zinc-600">
+                  <span className="h-1.5 w-1.5 rounded-full bg-zinc-900 inline-block" />
                   Active
-                </div>
+                </span>
               </div>
-              <h3 className="text-lg font-bold text-zinc-900 dark:text-white truncate">{t.name}</h3>
-              <div className="mt-1 flex items-center text-xs text-zinc-500 dark:text-slate-400 font-mono">
-                ID: {t.id}
-              </div>
+              <h3 className="text-sm font-semibold text-zinc-900 truncate">{t.name}</h3>
+              <p className="mt-1 text-xs text-zinc-400 font-mono truncate">ID: {t.id}</p>
               {t.schema_name && (
-                <div className="mt-4 inline-flex items-center rounded-md bg-zinc-100 dark:bg-slate-800 px-2 py-1 text-xs font-medium text-zinc-600 dark:text-slate-300">
+                <div className="mt-3 inline-flex items-center rounded bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600">
                   Schema: {t.schema_name}
                 </div>
               )}
             </div>
-            <div className="p-4 border-t border-zinc-100 dark:border-slate-800 bg-zinc-50/50 dark:bg-slate-900/50 rounded-b-xl">
+            <div className="border-t border-zinc-100 p-3">
               <Link
-                className="w-full flex justify-center items-center gap-2 rounded-lg bg-white dark:bg-slate-800 px-4 py-2.5 text-sm font-semibold text-zinc-900 dark:text-white border border-zinc-200 dark:border-slate-700 hover:bg-zinc-50 dark:hover:bg-slate-700 hover:border-zinc-300 dark:hover:border-slate-600 transition-colors shadow-sm"
+                className="flex w-full items-center justify-center gap-2 rounded-md border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 transition-colors"
                 href={`/tenants/${t.id}/dashboard`}
               >
                 Enter Workspace
@@ -65,8 +65,24 @@ export default async function TenantsPage() {
             </div>
           </div>
         ))}
+
+        {tenants.length === 0 && (
+          <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
+            <div className="h-12 w-12 rounded-full border-2 border-dashed border-zinc-300 flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-zinc-400">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+              </svg>
+            </div>
+            <p className="text-sm font-medium text-zinc-400">No workspaces yet</p>
+            <Link
+              href="/tenants/new"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-zinc-900 hover:underline"
+            >
+              Create your first workspace →
+            </Link>
+          </div>
+        )}
       </div>
     </PortalShell>
   );
 }
-
