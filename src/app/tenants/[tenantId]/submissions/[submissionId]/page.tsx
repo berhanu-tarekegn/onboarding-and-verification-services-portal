@@ -53,6 +53,8 @@ function StatusBadge({ status }: { status?: string }) {
   );
 }
 
+import { SubmissionActions } from "./SubmissionActions";
+
 export default async function SubmissionDetailPage({
   params,
 }: {
@@ -190,38 +192,7 @@ export default async function SubmissionDetailPage({
 
           <div className="sleek-card glass p-6">
              <h3 className="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider mb-4">Actions</h3>
-             <div className="space-y-3">
-                <button 
-                  disabled 
-                  className="w-full flex items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clipRule="evenodd" />
-                  </svg>
-                  Submit for Review
-                </button>
-                <button 
-                  disabled 
-                  className="w-full flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Approve Application
-                </button>
-                <div className="flex gap-3">
-                    <button 
-                      disabled 
-                      className="flex-1 flex items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 text-red-700 px-4 py-2 text-sm font-semibold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Reject
-                    </button>
-                    <button 
-                      disabled 
-                      className="flex-1 flex items-center justify-center gap-2 rounded-lg border border-amber-200 bg-amber-50 text-amber-700 px-4 py-2 text-sm font-semibold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Return
-                    </button>
-                </div>
-             </div>
-             <p className="mt-4 text-xs text-zinc-500 text-center">Actions are coming soon in next phase.</p>
+             <SubmissionActions tenantId={tenantId} submissionId={submissionId} status={s.status} />
           </div>
         </div>
       </div>
