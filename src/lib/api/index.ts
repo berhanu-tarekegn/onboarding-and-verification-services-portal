@@ -20,6 +20,24 @@ export const api: ApiClient = {
       json: { tenantId, ...input },
     });
   },
+  async updateProduct(tenantId, productId, input) {
+    return await portalFetch<Product>(`/api/portal/products/${encodeURIComponent(productId)}`, {
+      method: "PATCH",
+      json: { tenantId, ...input },
+    });
+  },
+  async activateProduct(tenantId, productId) {
+    return await portalFetch<Product>(`/api/portal/products/${encodeURIComponent(productId)}/activate`, {
+      method: "POST",
+      json: { tenantId },
+    });
+  },
+  async deactivateProduct(tenantId, productId) {
+    return await portalFetch<Product>(`/api/portal/products/${encodeURIComponent(productId)}/deactivate`, {
+      method: "POST",
+      json: { tenantId },
+    });
+  },
 
   async listTemplatesForTenant(tenantId) {
     return await portalFetch<Template[]>(
@@ -32,15 +50,30 @@ export const api: ApiClient = {
       json: { tenantId, ...input },
     });
   },
+  async createTemplateDefinition(tenantId, templateId, isDraft, questionGroups) {
+    return await portalFetch<any>(`/api/portal/templates/${encodeURIComponent(templateId)}/definitions`, {
+      method: "POST",
+      json: { tenantId, is_draft: isDraft, question_groups: questionGroups },
+    });
+  },
   async getBaselineTemplate() {
     const list = await portalFetch<Template[]>("/api/portal/baseline-templates");
-    return list[0];
+    const baseline = list[0];
+    if (!baseline || !baseline.active_version_id) return baseline;
+    // We need to fetch the definition to get the schema
+    const def = await portalFetch<{ question_groups: any }>(`/api/portal/baseline-templates/${baseline.id}/definitions/${baseline.active_version_id}`);
+    return { ...baseline, schema: { title: baseline.name, fields: def.question_groups } } as any;
   },
   async getTenantExtensionTemplate(tenantId) {
     const list = await portalFetch<Template[]>(
       `/api/portal/templates?tenantId=${encodeURIComponent(tenantId)}`
     );
-    return list[0];
+    const ext = list[0];
+    if (!ext || !ext.active_version_id) return ext;
+    const def = await portalFetch<{ question_groups: any }>(
+      `/api/portal/templates/${ext.id}/definitions/${ext.active_version_id}?tenantId=${encodeURIComponent(tenantId)}`
+    );
+    return { ...ext, schema: { title: ext.name, fields: def.question_groups } } as any;
   },
 
   async listSubmissions(tenantId) {

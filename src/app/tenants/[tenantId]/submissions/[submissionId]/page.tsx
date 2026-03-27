@@ -28,19 +28,10 @@ export default async function SubmissionDetailPage({
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-xl border bg-white">
           <div className="border-b px-5 py-4">
-            <div className="text-sm font-semibold">Payload</div>
+            <div className="text-sm font-semibold">Form Data</div>
           </div>
           <pre className="overflow-auto p-5 text-xs leading-5">
-            {JSON.stringify(s.payload, null, 2)}
-          </pre>
-        </div>
-
-        <div className="rounded-xl border bg-white">
-          <div className="border-b px-5 py-4">
-            <div className="text-sm font-semibold">Decision</div>
-          </div>
-          <pre className="overflow-auto p-5 text-xs leading-5">
-            {JSON.stringify(s.decision ?? {}, null, 2)}
+            {JSON.stringify(s.form_data, null, 2)}
           </pre>
         </div>
       </div>

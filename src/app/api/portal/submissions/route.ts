@@ -27,8 +27,23 @@ export async function POST(req: Request) {
   const body = await req.json();
   const tenantId = String(body?.tenantId ?? "");
   if (!tenantId) return NextResponse.json({ error: "tenantId required" }, { status: 400 });
-  const payload = { ...body };
-  delete (payload as any).tenantId;
+
+  const payload: Record<string, any> = { ...body };
+  delete payload.tenantId;
+  
+  // Map UI fields to FastAPI fields
+  if (payload.payload) {
+    payload.form_data = payload.payload;
+    delete payload.payload;
+  }
+  if (payload.productId) {
+    payload.product_id = payload.productId;
+    delete payload.productId;
+  }
+  if (payload.templateId) {
+    payload.template_id = payload.templateId;
+    delete payload.templateId;
+  }
 
   const created = await fastapiRequest({
     path: "/api/v1/submissions",

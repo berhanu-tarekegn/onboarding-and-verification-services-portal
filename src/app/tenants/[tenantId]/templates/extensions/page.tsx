@@ -55,7 +55,7 @@ export default async function TemplateExtensionsPage({
               <>
                 <div className="text-sm font-medium">{extension.name}</div>
                 <div className="mt-1 text-sm text-zinc-500">
-                  version {extension.version} · published
+                  level {extension.baseline_level} · active version: {extension.active_version_id ?? "none"}
                 </div>
                 <pre className="mt-4 overflow-auto rounded-lg border bg-zinc-50 p-4 text-xs leading-5">
                   {JSON.stringify(extension.schema ?? {}, null, 2)}

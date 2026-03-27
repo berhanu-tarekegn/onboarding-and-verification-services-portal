@@ -27,9 +27,9 @@ export default function NewSubmissionPage({
         const list = await portalFetch<Product[]>(
           `/api/portal/products?tenantId=${encodeURIComponent(tenantId)}`
         );
-        setProducts(list);
-        const active = list.find((p: any) => String(p?.status ?? "").toUpperCase() === "ACTIVE");
-        const first = active?.id ?? list[0]?.id;
+        const activeProducts = list.filter((p: any) => String(p?.status ?? "").toUpperCase() === "ACTIVE");
+        setProducts(activeProducts);
+        const first = activeProducts[0]?.id;
         if (first) setProductId(first);
       } catch (e: any) {
         setError(e?.message ?? "Failed to load products");
@@ -68,7 +68,8 @@ export default function NewSubmissionPage({
         setKycSchema({
           title: cfg?.template_name ?? "KYC",
           fields,
-        });
+          _templateId: cfg?.template_id,
+        } as any);
       } catch (e: any) {
         setError(e?.message ?? "Failed to load KYC config");
         setKycSchema(null);
@@ -117,7 +118,12 @@ export default function NewSubmissionPage({
                   try {
                     const created = await portalFetch<any>("/api/portal/submissions", {
                       method: "POST",
-                      json: { tenantId, payload: values, productId },
+                      json: { 
+                        tenantId, 
+                        payload: values, 
+                        productId,
+                        templateId: (kycSchema as any)._templateId 
+                      },
                     });
                     router.push(`/tenants/${tenantId}/submissions/${created.id ?? "new"}`);
                   } finally {

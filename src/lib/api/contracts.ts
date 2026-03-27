@@ -10,14 +10,18 @@ export type CreateProductInput = {
   name: string;
   description?: string;
 };
-export type CreateTemplateInput = Pick<Template, "name"> & {
-  // The backend accepts a JSON schema/blob. We keep it flexible.
-  schema?: unknown;
+export type CreateTemplateInput = {
+  name: string;
+  template_type: "kyc" | "kyb";
+  baseline_level: number;
+  description?: string;
 };
 export type CreateSubmissionInput = {
-  productId?: Id;
-  templateId: Id;
-  payload: Record<string, unknown>;
+  product_id?: Id;
+  template_id: Id;
+  form_data: Record<string, unknown>;
+  submitter_id?: string;
+  external_ref?: string;
 };
 
 export interface ApiClient {
@@ -34,6 +38,7 @@ export interface ApiClient {
   getTenantExtensionTemplate(tenantId: Id): Promise<Template | undefined>;
   listTemplatesForTenant(tenantId: Id): Promise<Template[]>;
   createTemplate(tenantId: Id, input: CreateTemplateInput): Promise<Template>;
+  createTemplateDefinition(tenantId: Id, templateId: Id, isDraft: boolean, questionGroups: any[]): Promise<any>;
 
   // Submissions
   listSubmissions(tenantId: Id): Promise<Submission[]>;

@@ -5,18 +5,57 @@ export type Role = "super_admin" | "tenant_admin" | "agent" | "auditor";
 export type Tenant = {
   id: Id;
   name: string;
+  schema_name?: string;
   status?: string;
   created_at?: string;
 };
 
+export type ProductStatus = "draft" | "active" | "inactive";
+
 export type Product = {
   id: Id;
-  // FastAPI uses product_code; we keep code as an alias for older UI calls.
-  product_code?: string;
-  code?: string;
   name: string;
+  product_code: string;
+  status: ProductStatus;
+  version: number;
+  template_id?: string;
   description?: string;
-  status?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type TemplateType = "kyc" | "kyb";
+
+export type Template = {
+  id: Id;
+  name: string;
+  template_type: TemplateType;
+  baseline_level: number;
+  is_active: boolean;
+  active_version_id?: string;
+};
+
+export type SubmissionStatus =
+  | "draft"
+  | "submitted"
+  | "under_review"
+  | "approved"
+  | "rejected"
+  | "returned"
+  | "completed"
+  | "cancelled";
+
+export type Submission = {
+  id: Id;
+  template_id: Id;
+  template_version_id: Id;
+  product_id?: Id;
+  form_data: Record<string, unknown>;
+  status: SubmissionStatus;
+  created_at: string;
+  updated_at: string;
+  submitter_id?: string;
+  external_ref?: string;
 };
 
 export type FieldType =
@@ -50,22 +89,6 @@ export type FieldSchema = {
 export type FormSchema = {
   title: string;
   fields: FieldSchema[];
-};
-
-export type Template = {
-  id: Id;
-  name: string;
-  version?: number;
-  is_published?: boolean;
-  schema?: unknown;
-};
-
-export type Submission = {
-  id: Id;
-  status?: string;
-  payload?: Record<string, unknown>;
-  decision?: Record<string, unknown>;
-  templateId?: Id;
 };
 
 // Deprecated alias (older UI used "case"). Do not use in new code.

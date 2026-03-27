@@ -42,7 +42,7 @@ export default async function SubmissionsListPage({
                   <div className="min-w-0">
                     <div className="text-sm font-medium">{s.id}</div>
                     <div className="mt-1 text-xs text-zinc-500">
-                      status: <code>{s.status}</code> · template: <code>{s.templateId}</code>
+                      status: <code>{s.status ?? 'draft'}</code> · template: <code>{s.template_id}</code>
                     </div>
                   </div>
                   <Link

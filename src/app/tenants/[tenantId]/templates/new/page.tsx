@@ -23,6 +23,8 @@ export default function NewTemplatePage({
   const { tenantId } = React.use(params);
 
   const [name, setName] = useState("");
+  const [templateType, setTemplateType] = useState("kyc");
+  const [baselineLevel, setBaselineLevel] = useState(1);
   const [schemaText, setSchemaText] = useState("{\n  \"fields\": []\n}\n");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +52,30 @@ export default function NewTemplatePage({
           />
         </div>
 
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <div className="text-sm font-medium">Template Type</div>
+            <select
+              className="mt-2 w-full rounded-md border bg-white px-3 py-2 text-sm"
+              value={templateType}
+              onChange={(e) => setTemplateType(e.target.value)}
+            >
+              <option value="kyc">KYC</option>
+              <option value="kyb">KYB</option>
+            </select>
+          </div>
+          <div>
+            <div className="text-sm font-medium">Baseline Level</div>
+            <input
+              type="number"
+              min={1}
+              className="mt-2 w-full rounded-md border bg-white px-3 py-2 text-sm"
+              value={baselineLevel}
+              onChange={(e) => setBaselineLevel(parseInt(e.target.value) || 1)}
+            />
+          </div>
+        </div>
+
         <div>
           <div className="text-sm font-medium">Schema (JSON)</div>
           <textarea
@@ -74,7 +100,18 @@ export default function NewTemplatePage({
               setSaving(true);
               setError(null);
               try {
-                await api.createTemplate(tenantId, { name: name.trim(), schema: parsed.ok ? parsed.value : undefined });
+                const template = await api.createTemplate(tenantId, {
+                  name: name.trim(),
+                  template_type: templateType as any,
+                  baseline_level: baselineLevel,
+                });
+
+                if (parsed.ok && parsed.value) {
+                  const val: any = parsed.value;
+                  const groups = val.fields ? val.fields : val;
+                  await api.createTemplateDefinition(tenantId, template.id, false, Array.isArray(groups) ? groups : []);
+                }
+
                 router.replace(`/tenants/${tenantId}/templates/extensions`);
                 router.refresh();
               } catch (e: any) {
