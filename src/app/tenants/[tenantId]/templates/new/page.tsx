@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useMemo, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { api } from "@/lib/api";
 
@@ -24,13 +24,11 @@ interface Field {
   options?: { value: string; display_order: number }[];
 }
 
-export default function NewTemplatePage({
-  params,
-}: {
-  params: Promise<{ tenantId: string }>;
-}) {
+function TemplateBuilderForm({ tenantId }: { tenantId: string }) {
   const router = useRouter();
-  const { tenantId } = React.use(params);
+  const searchParams = useSearchParams();
+  const existingTemplateId = searchParams.get("templateId");
+  const isNewVersion = !!existingTemplateId;
 
   const [name, setName] = useState("");
   const [templateType, setTemplateType] = useState("kyc");
@@ -102,7 +100,8 @@ export default function NewTemplatePage({
     syncToJson(updated);
   };
 
-  const canSave = name.trim().length > 0 && (viewMode === 'builder' ? fields.length >= 0 : parsed.ok);
+  const canSave = viewMode === 'builder' ? true : parsed.ok;
+  const isFormValid = isNewVersion ? canSave : (name.trim().length > 0 && canSave);
 
   return (
     <div className="space-y-6">
@@ -113,48 +112,52 @@ export default function NewTemplatePage({
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-6 h-6 text-brand-500">
               <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
             </svg>
-            Create Extension Template
+            {isNewVersion ? "Add Draft Definition" : "Create Extension Template"}
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-slate-400">
-            Define a new KYC configuration by extending global standards.
+            {isNewVersion ? "Create a new draft version for your existing template." : "Define a new KYC configuration by extending global standards."}
           </p>
         </div>
       </div>
 
       <div className="sleek-card glass p-6 space-y-6">
-        <div>
-          <label className="block text-xs font-semibold text-zinc-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">Template Name</label>
-          <input
-            className="w-full rounded-lg border border-zinc-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2.5 text-sm text-zinc-900 dark:text-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. KYC Extension v1"
-          />
-        </div>
+        {!isNewVersion && (
+          <>
+            <div>
+              <label className="block text-xs font-semibold text-zinc-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">Template Name</label>
+              <input
+                className="w-full rounded-lg border border-zinc-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2.5 text-sm text-zinc-900 dark:text-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. KYC Extension v1"
+              />
+            </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-xs font-semibold text-zinc-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">Template Type</label>
-            <select
-              className="w-full rounded-lg border border-zinc-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2.5 text-sm text-zinc-900 dark:text-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all cursor-pointer"
-              value={templateType}
-              onChange={(e) => setTemplateType(e.target.value)}
-            >
-              <option value="kyc">KYC</option>
-              <option value="kyb">KYB</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-zinc-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">Baseline Level</label>
-            <input
-              type="number"
-              min={1}
-              className="w-full rounded-lg border border-zinc-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2.5 text-sm text-zinc-900 dark:text-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-mono"
-              value={baselineLevel}
-              onChange={(e) => setBaselineLevel(parseInt(e.target.value) || 1)}
-            />
-          </div>
-        </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">Template Type</label>
+                <select
+                  className="w-full rounded-lg border border-zinc-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2.5 text-sm text-zinc-900 dark:text-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all cursor-pointer"
+                  value={templateType}
+                  onChange={(e) => setTemplateType(e.target.value)}
+                >
+                  <option value="kyc">KYC</option>
+                  <option value="kyb">KYB</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">Baseline Level</label>
+                <input
+                  type="number"
+                  min={1}
+                  className="w-full rounded-lg border border-zinc-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2.5 text-sm text-zinc-900 dark:text-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-mono"
+                  value={baselineLevel}
+                  onChange={(e) => setBaselineLevel(parseInt(e.target.value) || 1)}
+                />
+              </div>
+            </div>
+          </>
+        )}
 
         <div className="space-y-4">
           <div className="flex items-center justify-between border-b border-zinc-100 dark:border-slate-800 pb-2">
@@ -345,17 +348,26 @@ export default function NewTemplatePage({
           <button
             className="rounded-lg bg-brand-600 px-6 py-2 text-sm font-bold text-white hover:bg-brand-500 active:scale-[0.98] shadow-sm shadow-brand-500/20 transition-all uppercase tracking-wider disabled:opacity-50 flex items-center gap-2"
             type="button"
-            disabled={saving || !canSave}
+            disabled={saving || !isFormValid}
             onClick={async () => {
               setSaving(true);
               setError(null);
               try {
-                const template = await api.createTemplate(tenantId, {
-                  name: name.trim(),
-                  template_type: templateType as any,
-                  baseline_level: baselineLevel,
-                });
+                let currentTemplateId = existingTemplateId;
+                
+                // If creating a brand new template, do that first
+                if (!isNewVersion) {
+                  const template = await api.createTemplate(tenantId, {
+                    name: name.trim(),
+                    template_type: templateType as any,
+                    baseline_level: baselineLevel,
+                  });
+                  currentTemplateId = template.id;
+                }
 
+                if (!currentTemplateId) throw new Error("Template ID missing");
+
+                // Then create the definition for the template (whether new or existing)
                 if (viewMode === 'builder') {
                     // For builder mode, we need to generate a valid group structure
                     const groups = [{
@@ -370,17 +382,23 @@ export default function NewTemplatePage({
                             display_order: idx + 1
                         }))
                     }];
-                    await api.createTemplateDefinition(tenantId, template.id, false, groups);
+                    // Create as DRAFT (isDraft=true)
+                    await api.createTemplateDefinition(tenantId, currentTemplateId, true, groups);
                 } else if (parsed.ok && parsed.value) {
                   const val: any = parsed.value;
                   const groups = val.fields ? val.fields : val;
-                  await api.createTemplateDefinition(tenantId, template.id, false, Array.isArray(groups) ? groups : []);
+                  // Create as DRAFT (isDraft=true)
+                  await api.createTemplateDefinition(tenantId, currentTemplateId, true, Array.isArray(groups) ? groups : []);
                 }
 
-                router.replace(`/tenants/${tenantId}/templates/extensions`);
+                if (isNewVersion) {
+                    router.replace(`/tenants/${tenantId}/templates/${existingTemplateId}`);
+                } else {
+                    router.replace(`/tenants/${tenantId}/templates/extensions`);
+                }
                 router.refresh();
               } catch (e: any) {
-                setError(e?.message ?? "Failed to create template");
+                setError(e?.message ?? (isNewVersion ? "Failed to add definition" : "Failed to create template"));
               } finally {
                 setSaving(false);
               }
@@ -389,15 +407,29 @@ export default function NewTemplatePage({
             {saving ? (
               <>
                 <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                Creating...
+                Saving...
               </>
             ) : (
-              "Create Template"
+              isNewVersion ? "Save Draft Version" : "Create Template"
             )}
           </button>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function NewTemplatePage({
+  params,
+}: {
+  params: Promise<{ tenantId: string }>;
+}) {
+  const { tenantId } = React.use(params);
+  
+  return (
+    <Suspense fallback={<div className="p-12 text-center text-zinc-500 animate-pulse">Loading builder...</div>}>
+      <TemplateBuilderForm tenantId={tenantId} />
+    </Suspense>
   );
 }
 
