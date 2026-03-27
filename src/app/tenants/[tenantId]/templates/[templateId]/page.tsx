@@ -21,7 +21,17 @@ export default async function TemplateDetailPage({
     );
   }
 
-  // Sort definitions by version tag (v2 usually means draft/newer)
+  // Normalise definition status for the UI.
+  // Backend gives us: is_draft=true/false AND review_status (DRAFT, PENDING_REVIEW, APPROVED, REJECTED, SUPERSEDED)
+  const getUiStatus = (def: any) => {
+    if (def.is_draft) {
+      const rv = (def.review_status || "DRAFT").toUpperCase();
+      if (rv === "PENDING_REVIEW" || rv === "SUBMITTED") return "SUBMITTED";
+      return "DRAFT";
+    }
+    // Published / locked
+    return "APPROVED";
+  };
   const sortedDefs = [...(definitions || [])].sort((a, b) => {
     return (b.version_tag || "").localeCompare(a.version_tag || "");
   });
@@ -85,7 +95,7 @@ export default async function TemplateDetailPage({
         ) : (
           <div className="divide-y divide-zinc-100 dark:divide-slate-800/50">
             {sortedDefs.map((def: any) => {
-              const status = def.status || (def.is_draft ? "DRAFT" : def.is_locked ? "LOCKED" : "UNKNOWN");
+              const status = getUiStatus(def);
               const isDefault = template.active_version_id === def.id;
               
               const statusColors: Record<string, string> = {
