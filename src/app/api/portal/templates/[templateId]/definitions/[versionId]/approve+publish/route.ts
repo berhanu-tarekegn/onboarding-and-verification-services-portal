@@ -14,10 +14,20 @@ export async function POST(
   if (!tenantId) return NextResponse.json({ error: "tenantId required" }, { status: 400 });
 
   try {
-    const data = await fastapiRequest({
-      path: `/api/v1/templates/${encodeURIComponent(templateId)}/definitions/${encodeURIComponent(versionId)}/approve+publish`,
+    // 1. Approve
+    await fastapiRequest({
+      path: `/api/v1/templates/${encodeURIComponent(templateId)}/definitions/${encodeURIComponent(versionId)}/approve`,
       method: "POST",
       tenantId,
+      json: { notes: "Approved directly via Web Portal" },
+    });
+
+    // 2. Publish and set as active
+    const data = await fastapiRequest({
+      path: `/api/v1/templates/${encodeURIComponent(templateId)}/definitions/${encodeURIComponent(versionId)}/publish?set_as_active=true`,
+      method: "POST",
+      tenantId,
+      json: { notes: "Published via Web Portal" },
     });
     return NextResponse.json(data);
   } catch (err) {

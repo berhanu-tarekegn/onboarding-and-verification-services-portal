@@ -4,6 +4,8 @@ import type { FormSchema } from "@/lib/types/domain";
 import Link from "next/link";
 import React from "react";
 
+import { portalFetch } from "@/lib/api/client";
+
 export default async function TemplateExtensionsPage({
   params,
 }: {
@@ -11,13 +13,31 @@ export default async function TemplateExtensionsPage({
 }) {
   const { tenantId } = await params;
   const baseline = await api.getBaselineTemplate();
-  const extension = await api.getTenantExtensionTemplate(tenantId);
+  const templates = await api.listTemplatesForTenant(tenantId);
+  
+  // For the preview panel, just pick the first template that has an active version
+  const firstActive = templates.find(t => t.active_version_id);
+  
+  let firstExtensionWithSchema = null;
+  if (firstActive) {
+    // Fetch schema just for the preview via the BFF
+    const def = await portalFetch<{ question_groups: any }>(
+      `/api/portal/templates/${firstActive.id}/definitions/${firstActive.active_version_id}?tenantId=${encodeURIComponent(tenantId)}`
+    ).catch(() => null);
+    
+    if (def && typeof def === 'object' && 'question_groups' in def) {
+      firstExtensionWithSchema = {
+         ...firstActive,
+         schema: { title: firstActive.name, fields: def.question_groups }
+      };
+    }
+  }
 
   const effective: FormSchema | undefined =
-    baseline && extension && baseline.schema && extension.schema
+    baseline && firstExtensionWithSchema && baseline.schema && firstExtensionWithSchema.schema
       ? mergeEffectiveSchema({
           baseline: baseline.schema as FormSchema,
-          extension: extension.schema as FormSchema,
+          extension: firstExtensionWithSchema.schema as FormSchema,
         })
       : baseline?.schema
         ? (baseline.schema as FormSchema)
@@ -36,34 +56,19 @@ export default async function TemplateExtensionsPage({
             standards.
           </p>
         </div>
-        {extension ? (
-          // Template exists → show "Add New Version" (not create a brand new template)
-          <Link
-            className="rounded-lg border border-zinc-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-semibold text-zinc-700 dark:text-slate-300 hover:bg-zinc-50 dark:hover:bg-slate-700 transition-all flex items-center gap-2"
-            href={`/tenants/${tenantId}/templates/new`}
-            title="Create a new custom fields template"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-              <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
-            </svg>
-            New Extension
-          </Link>
-        ) : (
-          // No template yet → create one
-          <Link
-            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500 shadow-sm shadow-brand-500/30 transition-all flex items-center gap-2"
-            href={`/tenants/${tenantId}/templates/new`}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-              <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
-            </svg>
-            Create Extension
-          </Link>
-        )}
+        <Link
+          className="rounded-lg bg-zinc-900 dark:bg-zinc-800 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 dark:hover:bg-zinc-700 shadow-sm transition-all flex items-center gap-2"
+          href={`/tenants/${tenantId}/templates/new`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+            <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+          </svg>
+          New Extension
+        </Link>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Left Side: Tenant Extension */}
+        {/* Left Side: Tenant Extensions List */}
         <div className="sleek-card glass flex flex-col h-[700px]">
           <div className="border-b border-zinc-200 dark:border-slate-700 bg-zinc-50/50 dark:bg-slate-900/50 px-6 py-4 flex flex-col">
             <div className="flex items-center justify-between mb-2">
@@ -73,51 +78,43 @@ export default async function TemplateExtensionsPage({
                   </svg>
                   <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">Workspace Add-ons</h2>
                 </div>
-                {extension && (
-                    <span className="text-[10px] font-bold bg-brand-50 text-brand-700 border border-brand-200 dark:bg-brand-500/10 dark:text-brand-400 px-2 py-0.5 rounded uppercase tracking-wider">
-                        Compliance Level {extension.baseline_level}
-                    </span>
-                )}
             </div>
             <div className="text-[10px] font-medium text-zinc-500 dark:text-slate-400 uppercase tracking-widest">
-              Custom fields defined by <code className="bg-zinc-100 dark:bg-slate-800 px-1 rounded">{tenantId}</code>
+              Custom extensions defined by <code className="bg-zinc-100 dark:bg-slate-800 px-1 rounded">{tenantId}</code>
             </div>
           </div>
-          <div className="p-6 flex-1 overflow-auto bg-zinc-50/30 dark:bg-slate-900/30">
-            {extension ? (
-              <div className="space-y-6">
-                <div className="flex items-center gap-4 border-b border-zinc-200 dark:border-slate-700 pb-4">
-                  <div className="flex-1">
-                    <Link href={`/tenants/${tenantId}/templates/${extension.id}`} className="text-base font-bold text-zinc-900 dark:text-white hover:text-brand-600 dark:hover:text-brand-400 hover:underline mb-1 inline-flex items-center gap-2 group">
-                      {extension.name}
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-zinc-400 group-hover:text-brand-500 opacity-0 group-hover:opacity-100 transition-all -ml-1">
-                        <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clipRule="evenodd" />
-                      </svg>
-                    </Link>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <span className="flex items-center gap-1.5 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 px-2 py-0.5 rounded-full">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                        PUBLISHED
-                      </span>
-                      <span className="text-xs text-zinc-500 font-mono">vID: {extension.active_version_id ?? "unknown"}</span>
+          <div className="p-6 flex-1 overflow-auto bg-zinc-50/30 dark:bg-slate-900/30 space-y-4">
+            {templates.length > 0 ? (
+              templates.map(ext => (
+                <Link key={ext.id} href={`/tenants/${tenantId}/templates/${ext.id}`} className="block group">
+                  <div className="p-5 rounded-xl border border-zinc-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:border-brand-300 dark:hover:border-brand-700 hover:shadow-md transition-all">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+                        {ext.name}
+                      </h3>
+                      {ext.active_version_id ? (
+                        <span className="flex items-center gap-1.5 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 px-2 py-0.5 rounded-full">
+                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                          PUBLISHED
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1.5 text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 px-2 py-0.5 rounded-full">
+                          <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                          DRAFT
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-zinc-500 dark:text-slate-400">
+                      <div className="flex items-center gap-1.5 bg-zinc-100 dark:bg-slate-900 px-2 py-1 rounded">
+                        <span className="font-semibold">{ext.template_type.toUpperCase()}</span> 
+                        <span>•</span>
+                        <span>Level {ext.baseline_level}</span>
+                      </div>
+                      <span className="font-mono">vID: {ext.active_version_id?.substring(0, 8) ?? "N/A"}</span>
                     </div>
                   </div>
-                </div>
-                
-                <h3 className="text-xs font-bold text-zinc-500 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                   Raw Extension JSON
-                   <span className="h-px flex-1 bg-zinc-200 dark:bg-slate-800"></span>
-                </h3>
-                {(!extension.schema || Object.keys(extension.schema).length === 0) ? (
-                   <div className="p-10 rounded-xl border border-dashed border-zinc-200 dark:border-slate-800 text-center bg-zinc-50/50 dark:bg-slate-950/50">
-                      <p className="text-xs text-zinc-500 dark:text-slate-400 font-medium italic">No custom fields defined in this extension.</p>
-                   </div>
-                ) : (
-                  <pre className="overflow-auto rounded-xl border border-zinc-200 dark:border-slate-700 bg-zinc-900 p-5 text-xs text-zinc-300 font-mono shadow-inner max-h-[450px]">
-                    {JSON.stringify(extension.schema ?? {}, null, 2)}
-                  </pre>
-                )}
-              </div>
+                </Link>
+              ))
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-center p-8">
                 <div className="h-12 w-12 rounded-full bg-zinc-100 dark:bg-slate-800 flex items-center justify-center text-zinc-400 mb-4">
@@ -125,9 +122,9 @@ export default async function TemplateExtensionsPage({
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
-                <div className="text-sm font-semibold text-zinc-700 dark:text-slate-300">No extension defined</div>
+                <div className="text-sm font-semibold text-zinc-700 dark:text-slate-300">No extensions defined</div>
                 <div className="mt-2 text-xs text-zinc-500 max-w-xs">
-                  This workspace is only using the baseline schema. Click "Edit Extension" to add custom fields.
+                  This workspace is only using the baseline schema. Click "New Extension" to add custom fields.
                 </div>
               </div>
             )}
@@ -155,7 +152,7 @@ export default async function TemplateExtensionsPage({
                 )}
             </div>
             <div className="text-[10px] font-medium text-indigo-600/80 dark:text-indigo-400/80 uppercase tracking-widest">
-              Merged Runtime Result: Global Baseline {extension ? "+ Your Extension" : ""}
+              Merged Runtime Result: Global Baseline {firstExtensionWithSchema ? "+ First Extension Preview" : ""}
             </div>
           </div>
           

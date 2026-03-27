@@ -15,9 +15,10 @@ export async function POST(
 
   try {
     const data = await fastapiRequest({
-      path: `/api/v1/templates/${encodeURIComponent(templateId)}/definitions/${encodeURIComponent(versionId)}/submit`,
+      path: `/api/v1/templates/${encodeURIComponent(templateId)}/definitions/${encodeURIComponent(versionId)}/submit-review`,
       method: "POST",
       tenantId,
+      json: { notes: "Submitted via Web Portal" },
     });
     return NextResponse.json(data);
   } catch (err) {

@@ -66,9 +66,10 @@ export const api: ApiClient = {
     );
   },
   async createTemplateDefinition(tenantId, templateId, isDraft, questionGroups) {
+    const defaultTag = isDraft ? `Draft-${Math.floor(Date.now() / 1000).toString().slice(-6)}` : `v-${Math.floor(Date.now() / 1000).toString()}`;
     return await portalFetch<any>(`/api/portal/templates/${encodeURIComponent(templateId)}/definitions`, {
       method: "POST",
-      json: { tenantId, is_draft: isDraft, question_groups: questionGroups },
+      json: { tenantId, is_draft: isDraft, version_tag: defaultTag, question_groups: questionGroups },
     });
   },
   async submitTemplateDefinition(tenantId, templateId, versionId) {

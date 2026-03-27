@@ -156,6 +156,18 @@ function TemplateBuilderForm({ tenantId }: { tenantId: string }) {
                 />
               </div>
             </div>
+
+            <div className="rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 p-4 flex items-start gap-3 mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 1.838A1.75 1.75 0 0012.428 13.5a.75.75 0 00-1.483-.243l-.459-1.838a1.75 1.75 0 00-3.391-.851A.75.75 0 009 9z" clipRule="evenodd" />
+              </svg>
+              <div>
+                <h4 className="text-sm font-bold text-indigo-900 dark:text-indigo-300">Automatic Baseline Inheritance</h4>
+                <p className="text-xs text-indigo-700 dark:text-indigo-400 mt-1 leading-relaxed">
+                  Your new extension will automatically inherit all standards and fields from the published baseline template matching the <span className="font-semibold">Type</span> and <span className="font-semibold">Level</span> selected above. You only need to define your workspace-specific custom fields below.
+                </p>
+              </div>
+            </div>
           </>
         )}
 

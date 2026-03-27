@@ -10,10 +10,8 @@ export default async function TemplateDetailPage({
 }) {
   const { tenantId, templateId } = await params;
   
-  const templatePromise = api.getTemplate(tenantId, templateId).catch(() => null);
-  const definitionsPromise = api.listTemplateDefinitions(tenantId, templateId).catch(() => []);
-  
-  const [template, definitions] = await Promise.all([templatePromise, definitionsPromise]);
+  const template: any = await api.getTemplate(tenantId, templateId).catch(() => null);
+  const definitions = template?.versions || [];
 
   if (!template) {
     return (

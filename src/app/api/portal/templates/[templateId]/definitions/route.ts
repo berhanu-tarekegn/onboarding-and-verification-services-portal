@@ -29,10 +29,13 @@ export async function POST(
   const url = new URL(req.url);
   const queryTenant = url.searchParams.get("tenantId");
   const store = await cookies();
-  const tenantId = queryTenant ?? store.get("active_tenant_id")?.value;
+  
+  const json = await req.json();
+  const bodyTenant = json.tenantId;
+  
+  const tenantId = queryTenant ?? bodyTenant ?? store.get("active_tenant_id")?.value;
   if (!tenantId) return NextResponse.json({ error: "tenantId required" }, { status: 400 });
 
-  const json = await req.json();
   const data = await fastapiRequest({
     path: `/api/v1/templates/${encodeURIComponent(templateId)}/definitions`,
     method: "POST",
