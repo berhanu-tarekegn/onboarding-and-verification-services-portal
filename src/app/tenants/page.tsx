@@ -1,36 +1,31 @@
-import Link from "next/link";
 import { PortalShell } from "@/components/portal/PortalShell";
+import Link from "next/link";
+import { api } from "@/lib/api";
 
-const mockTenants = [
-  { id: "tenant_001", name: "Acme Microfinance" },
-  { id: "tenant_002", name: "BlueBank" },
-  { id: "tenant_003", name: "Qena Demo Tenant" },
-];
+export default async function TenantsPage() {
+  const tenants = await api.listTenants();
 
-export default function TenantsPage() {
   return (
     <PortalShell
       title="Tenants"
-      subtitle="Select a tenant to manage products, templates, and cases."
+      subtitle="Select a tenant to manage products, templates, and submissions."
       nav={[
-        { label: "Tenants", href: "/tenants" },
+        { label: "Tenants", href: "/tenants", routeKey: "tenants" },
         { label: "Docs (later)", href: "#" },
       ]}
     >
       <div className="rounded-xl border bg-white">
         <div className="flex items-center justify-between border-b px-5 py-4">
           <div className="text-sm font-semibold">All tenants</div>
-          <button
+          <Link
             className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800"
-            type="button"
-            disabled
-            title="Mock-first: CRUD comes next"
+            href="/tenants/new"
           >
             New tenant
-          </button>
+          </Link>
         </div>
         <ul className="divide-y">
-          {mockTenants.map((t) => (
+          {tenants.map((t) => (
             <li key={t.id} className="px-5 py-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">

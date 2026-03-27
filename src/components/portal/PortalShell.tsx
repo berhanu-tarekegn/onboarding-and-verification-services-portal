@@ -3,6 +3,9 @@ import Link from "next/link";
 type NavItem = {
   label: string;
   href: string;
+  // routeKey is still allowed (tenant layouts pass it), but this shell no longer
+  // performs client-side mock RBAC gating.
+  routeKey?: string;
 };
 
 export function PortalShell({
@@ -21,21 +24,20 @@ export function PortalShell({
       <aside className="border-r bg-white">
         <div className="px-5 py-4 border-b">
           <div className="text-sm font-semibold tracking-tight">eKYC Portal</div>
-          <div className="text-xs text-zinc-500">Mock-first admin UI</div>
+          <div className="text-xs text-zinc-500">Admin portal</div>
         </div>
         <nav className="p-3">
-          <ul className="space-y-1">
+          <div className="space-y-1">
             {nav.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="block rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950"
-                >
-                  {item.label}
-                </Link>
-              </li>
+              <Link
+                key={item.href}
+                href={item.href}
+                className="block rounded-md px-3 py-2 text-sm text-zinc-900 hover:bg-zinc-50"
+              >
+                {item.label}
+              </Link>
             ))}
-          </ul>
+          </div>
         </nav>
       </aside>
 

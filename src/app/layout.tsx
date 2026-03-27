@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "eKYC Portal",
-  description: "Multi-tenant verification portal (mock-first)",
+  description: "Multi-tenant verification portal",
 };
 
 export default function RootLayout({
