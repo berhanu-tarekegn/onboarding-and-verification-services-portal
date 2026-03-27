@@ -21,6 +21,7 @@ export default function TransformRulesPage({
   const [loadingVersions, setLoadingVersions] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     (async () => {
@@ -98,6 +99,39 @@ export default function TransformRulesPage({
       setError(e?.message ?? "Generate failed");
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handlePublish = async (rsId: string) => {
+    setActionLoading(prev => ({ ...prev, [rsId]: true }));
+    setError(null);
+    try {
+      await portalFetch(`/api/portal/transform-rules/${rsId}/publish`, {
+        method: "POST",
+        json: { tenantId, templateId }
+      });
+      await refreshList();
+    } catch (e: any) {
+      setError(e?.message ?? "Publish failed");
+    } finally {
+      setActionLoading(prev => ({ ...prev, [rsId]: false }));
+    }
+  };
+
+  const handleBulkApply = async (rsId: string) => {
+    setActionLoading(prev => ({ ...prev, [rsId]: true }));
+    setError(null);
+    try {
+      const res = await portalFetch<any>(`/api/portal/transform-rules/${rsId}/bulk-apply`, {
+        method: "POST",
+        json: { tenantId, templateId, dry_run: false }
+      });
+      alert(`Migration complete! Successfully migrated ${res.migrated_count || 0} submissions.`);
+      await refreshList();
+    } catch (e: any) {
+      setError(e?.message ?? "Migration failed");
+    } finally {
+      setActionLoading(prev => ({ ...prev, [rsId]: false }));
     }
   };
 
@@ -257,11 +291,13 @@ export default function TransformRulesPage({
                     <div className="p-5 flex items-start justify-between bg-zinc-50/30 dark:bg-slate-900/30 hover:bg-zinc-50 dark:hover:bg-slate-800/50 transition-colors">
                       <div className="flex items-center gap-4">
                         <div className="flex flex-col items-center gap-1 min-w-[120px]">
-                          <span className="text-xs font-mono font-bold text-zinc-900 dark:text-white bg-white dark:bg-slate-950 px-2 py-1 rounded border border-zinc-200 dark:border-slate-700 shadow-sm">{ruleSet.source_version_id}</span>
+                          <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Source</span>
+                          <span className="text-xs font-mono font-bold text-zinc-900 dark:text-white bg-white dark:bg-slate-950 px-2 py-1 rounded border border-zinc-200 dark:border-slate-700 shadow-sm">{ruleSet.source_version_id?.substring(0,8)}</span>
                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-zinc-400">
                             <path fillRule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clipRule="evenodd" />
                           </svg>
-                          <span className="text-xs font-mono font-bold text-brand-700 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10 px-2 py-1 rounded border border-brand-200 dark:border-brand-500/20">{ruleSet.target_version_id}</span>
+                          <span className="text-xs font-mono font-bold text-brand-700 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10 px-2 py-1 rounded border border-brand-200 dark:border-brand-500/20">{ruleSet.target_version_id?.substring(0,8)}</span>
+                          <span className="text-[10px] text-brand-400 font-bold uppercase tracking-widest">Target</span>
                         </div>
                         <div>
                           <p className="text-xs text-zinc-500 dark:text-slate-400 font-medium uppercase tracking-wider mb-1">Status</p>
@@ -271,19 +307,43 @@ export default function TransformRulesPage({
                               : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
                           }`}>
                             {ruleSet.status === 'draft' && <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>}
-                            {ruleSet.status ?? "DRAFT"}
+                            {ruleSet.status?.toUpperCase() ?? "DRAFT"}
                           </span>
                         </div>
                       </div>
                       
-                      {ruleSet.auto_generated && (
-                        <span className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-zinc-100 text-zinc-600 dark:bg-slate-800 dark:text-slate-400 flex items-center gap-1">
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
-                            <path fillRule="evenodd" d="M14.5 2A1.5 1.5 0 0 1 16 3.5v13a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 3 16.5v-13A1.5 1.5 0 0 1 4.5 2h10ZM5 14.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5Zm0-2a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5Zm0-2a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5Zm0-2a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5Z" clipRule="evenodd" />
-                          </svg>
-                          Auto
-                        </span>
-                      )}
+                      <div className="flex flex-col items-end gap-3">
+                        <div className="flex items-center gap-2">
+                           {ruleSet.auto_generated && (
+                            <span className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-zinc-100 text-zinc-600 dark:bg-slate-800 dark:text-slate-400 flex items-center gap-1">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
+                                <path fillRule="evenodd" d="M14.5 2A1.5 1.5 0 0 1 16 3.5v13a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 3 16.5v-13A1.5 1.5 0 0 1 4.5 2h10ZM5 14.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5Zm0-2a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5Zm0-2a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5Zm0-2a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5Z" clipRule="evenodd" />
+                              </svg>
+                              Auto
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            {ruleSet.status === 'draft' ? (
+                                <button
+                                    onClick={() => handlePublish(ruleSet.id)}
+                                    disabled={actionLoading[ruleSet.id]}
+                                    className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500 disabled:opacity-50 transition-all shadow-sm shadow-indigo-500/20"
+                                >
+                                    {actionLoading[ruleSet.id] ? "Publishing..." : "Publish Ruleset"}
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => handleBulkApply(ruleSet.id)}
+                                    disabled={actionLoading[ruleSet.id]}
+                                    className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500 disabled:opacity-50 transition-all shadow-sm shadow-emerald-500/20"
+                                >
+                                    {actionLoading[ruleSet.id] ? "Applying..." : "Bulk Apply Migration"}
+                                </button>
+                            )}
+                        </div>
+                      </div>
                     </div>
                     
                     <details className="border-t border-zinc-100 dark:border-slate-800">
