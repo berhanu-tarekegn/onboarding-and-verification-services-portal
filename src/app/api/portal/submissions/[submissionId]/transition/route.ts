@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-import { fastapiRequest } from "@/lib/server/fastapiClient";
+import { fastapiRequest, FastApiError } from "@/lib/server/fastapiClient";
 
 export async function POST(
   req: Request,
@@ -15,12 +15,27 @@ export async function POST(
   if (!tenantId) return NextResponse.json({ error: "tenantId required" }, { status: 400 });
 
   const json = await req.json();
-  const data = await fastapiRequest({
-    path: `/api/v1/submissions/${encodeURIComponent(submissionId)}/transition`,
-    method: "POST",
-    tenantId,
-    json,
-  });
-  return NextResponse.json(data);
-}
 
+  // Map UI field name `target_status` → FastAPI field `to_status`
+  const payload: Record<string, unknown> = { ...json };
+  if (payload.target_status !== undefined && payload.to_status === undefined) {
+    payload.to_status = payload.target_status;
+    delete payload.target_status;
+  }
+
+  try {
+    const data = await fastapiRequest({
+      path: `/api/v1/submissions/${encodeURIComponent(submissionId)}/transition`,
+      method: "POST",
+      tenantId,
+      json: payload,
+    });
+    return NextResponse.json(data);
+  } catch (err) {
+    if (err instanceof FastApiError) {
+      const body = err.bodyText ? JSON.parse(err.bodyText).error : { message: err.message };
+      return NextResponse.json({ error: body }, { status: err.status });
+    }
+    throw err;
+  }
+}
