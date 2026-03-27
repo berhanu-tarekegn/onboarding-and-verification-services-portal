@@ -92,5 +92,16 @@ export const api: ApiClient = {
       json: { tenantId, ...input },
     });
   },
+  async submitSubmission(tenantId, submissionId) {
+    return await portalFetch<Submission>(`/api/portal/submissions/${encodeURIComponent(submissionId)}/submit?tenantId=${encodeURIComponent(tenantId)}`, {
+      method: "POST",
+    });
+  },
+  async transitionSubmission(tenantId, submissionId, targetStatus, comments) {
+    return await portalFetch<Submission>(`/api/portal/submissions/${encodeURIComponent(submissionId)}/transition?tenantId=${encodeURIComponent(tenantId)}`, {
+      method: "POST",
+      json: { target_status: targetStatus, comments },
+    });
+  },
 };
 

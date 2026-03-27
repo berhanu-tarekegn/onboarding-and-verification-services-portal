@@ -32,6 +32,9 @@ export interface ApiClient {
   // Products (tenant scoped)
   listProducts(tenantId: Id): Promise<Product[]>;
   createProduct(tenantId: Id, input: CreateProductInput): Promise<Product>;
+  updateProduct(tenantId: Id, productId: Id, input: Partial<CreateProductInput>): Promise<Product>;
+  activateProduct(tenantId: Id, productId: Id): Promise<Product>;
+  deactivateProduct(tenantId: Id, productId: Id): Promise<Product>;
 
   // Templates
   getBaselineTemplate(): Promise<Template | undefined>;
@@ -44,5 +47,7 @@ export interface ApiClient {
   listSubmissions(tenantId: Id): Promise<Submission[]>;
   getSubmission(tenantId: Id, submissionId: Id): Promise<Submission | undefined>;
   createSubmission(tenantId: Id, input: CreateSubmissionInput): Promise<Submission>;
+  submitSubmission(tenantId: Id, submissionId: Id): Promise<Submission>;
+  transitionSubmission(tenantId: Id, submissionId: Id, targetStatus: string, comments?: string): Promise<Submission>;
 }
 
