@@ -22,7 +22,8 @@ export default async function TenantDashboardPage({
     casesRes.status === "fulfilled"
       ? casesRes.value.filter((c) => {
           const s = String((c as any).status ?? "").toLowerCase();
-          return s.includes("pending") || s.includes("review");
+          // 'submitted' = awaiting review, 'under_review' = in progress
+          return s === "submitted" || s === "under_review" || s === "pending_review";
         }).length
       : null;
 
