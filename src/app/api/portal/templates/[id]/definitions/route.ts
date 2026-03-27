@@ -4,9 +4,9 @@ import { fastapiRequest } from "@/lib/server/fastapiClient";
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ templateId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { templateId } = await params;
+  const { id } = await params;
   const body = await req.json();
   const tenantId = String(body?.tenantId ?? "");
   const store = await cookies();
@@ -17,7 +17,7 @@ export async function POST(
   delete (payload as any).tenantId;
 
   const data = await fastapiRequest({
-    path: `/api/v1/templates/${encodeURIComponent(templateId)}/definitions`,
+    path: `/api/v1/templates/${encodeURIComponent(id)}/definitions`,
     method: "POST",
     tenantId: finalTenantId,
     json: payload,

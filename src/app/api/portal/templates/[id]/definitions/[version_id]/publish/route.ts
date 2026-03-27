@@ -4,9 +4,9 @@ import { fastapiRequest } from "@/lib/server/fastapiClient";
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ templateId: string; versionId: string }> }
+  { params }: { params: Promise<{ id: string; version_id: string }> }
 ) {
-  const { templateId, versionId } = await params;
+  const { id, version_id } = await params;
   const url = new URL(req.url);
   const queryTenant = url.searchParams.get("tenantId");
   const store = await cookies();
@@ -14,7 +14,7 @@ export async function POST(
   if (!tenantId) return NextResponse.json({ error: "tenantId required" }, { status: 400 });
 
   const data = await fastapiRequest({
-    path: `/api/v1/templates/${encodeURIComponent(templateId)}/definitions/${encodeURIComponent(versionId)}/publish`,
+    path: `/api/v1/templates/${encodeURIComponent(id)}/definitions/${encodeURIComponent(version_id)}/publish`,
     method: "POST",
     tenantId,
   });
