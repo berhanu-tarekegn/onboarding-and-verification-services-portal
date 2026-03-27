@@ -7,10 +7,11 @@ export async function POST(
   { params }: { params: Promise<{ productId: string }> }
 ) {
   const { productId } = await params;
+  const body = await req.json().catch(() => ({}));
   const url = new URL(req.url);
   const queryTenant = url.searchParams.get("tenantId");
   const store = await cookies();
-  const tenantId = queryTenant ?? store.get("active_tenant_id")?.value;
+  const tenantId = body.tenantId || queryTenant || store.get("active_tenant_id")?.value;
   if (!tenantId) return NextResponse.json({ error: "tenantId required" }, { status: 400 });
 
   const data = await fastapiRequest({

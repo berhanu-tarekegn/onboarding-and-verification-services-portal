@@ -1,5 +1,6 @@
 import { api } from "@/lib/api";
 import Link from "next/link";
+import { ProductActions } from "./ProductActions";
 
 export default async function ProductsPage({
   params,
@@ -112,25 +113,12 @@ export default async function ProductsPage({
                   )}
                 </div>
                 
-                <div className="p-4 border-t border-zinc-100 dark:border-slate-800 bg-zinc-50/50 dark:bg-slate-900/50 rounded-b-xl flex gap-2">
-                  <button
-                    className="flex-1 rounded-lg bg-white dark:bg-slate-800 px-3 py-2 text-sm font-medium text-zinc-700 dark:text-slate-300 border border-zinc-200 dark:border-slate-700 hover:bg-zinc-50 dark:hover:bg-slate-700 hover:border-zinc-300 dark:hover:border-slate-600 transition-colors shadow-sm disabled:opacity-50"
-                    type="button"
-                    disabled
-                    title="Coming soon"
-                  >
-                    Edit
-                  </button>
-                  {isDraft && (
-                    <button
-                        className="flex-1 rounded-lg bg-brand-50 dark:bg-brand-900/20 px-3 py-2 text-sm font-medium text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800 hover:bg-brand-100 dark:hover:bg-brand-900/40 transition-colors shadow-sm disabled:opacity-50"
-                        type="button"
-                        disabled
-                        title="Coming soon"
-                    >
-                        Activate
-                    </button>
-                  )}
+                <div className="p-4 border-t border-zinc-100 dark:border-slate-800 bg-zinc-50/50 dark:bg-slate-900/50 rounded-b-xl">
+                  <ProductActions 
+                    tenantId={tenantId}
+                    productId={p.id}
+                    isDraft={isDraft}
+                  />
                 </div>
               </div>
             );

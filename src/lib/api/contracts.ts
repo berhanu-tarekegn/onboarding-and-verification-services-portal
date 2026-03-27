@@ -31,6 +31,7 @@ export interface ApiClient {
 
   // Products (tenant scoped)
   listProducts(tenantId: Id): Promise<Product[]>;
+  getProduct(tenantId: Id, productId: Id): Promise<Product | undefined>;
   createProduct(tenantId: Id, input: CreateProductInput): Promise<Product>;
   updateProduct(tenantId: Id, productId: Id, input: Partial<CreateProductInput>): Promise<Product>;
   activateProduct(tenantId: Id, productId: Id): Promise<Product>;

@@ -14,6 +14,9 @@ export const api: ApiClient = {
   async listProducts(tenantId) {
     return await portalFetch<Product[]>(`/api/portal/products?tenantId=${encodeURIComponent(tenantId)}`);
   },
+  async getProduct(tenantId, productId) {
+    return await portalFetch<Product>(`/api/portal/products/${encodeURIComponent(productId)}?tenantId=${encodeURIComponent(tenantId)}`);
+  },
   async createProduct(tenantId, input) {
     return await portalFetch<Product>("/api/portal/products", {
       method: "POST",
