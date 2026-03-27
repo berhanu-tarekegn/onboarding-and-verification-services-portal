@@ -84,30 +84,32 @@ export default async function SubmissionDetailPage({
   }
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Header Panel */}
-      <div className="sleek-card glass p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <Link 
-                href={`/tenants/${tenantId}/submissions`}
-                className="p-1.5 -ml-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-slate-800 text-zinc-500 transition-colors"
-                title="Back to submissions"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                </svg>
-            </Link>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Submission Details</h1>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center bg-white dark:bg-slate-900 p-6 rounded-xl border border-zinc-200 dark:border-slate-800 shadow-sm relative overflow-hidden transition-all duration-300">
+        <div className="absolute right-0 top-0 w-64 h-64 bg-brand-500/5 dark:bg-brand-500/10 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2"></div>
+        <div className="flex items-center gap-4">
+          <Link 
+            href={`/tenants/${tenantId}/submissions`}
+            className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-slate-800 text-zinc-500 transition-colors border border-transparent hover:border-zinc-200 dark:hover:border-slate-700 active:scale-95"
+            title="Back to submissions"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+          </Link>
+          <div>
+            <h1 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+              Submission Details
+            </h1>
+            <p className="mt-1 text-[10px] font-mono text-zinc-400 dark:text-slate-500 bg-zinc-50 dark:bg-slate-950 px-2 py-0.5 rounded border border-zinc-100 dark:border-slate-800 w-fit">
+              ID: {s.id}
+            </p>
           </div>
-          <p className="text-sm font-mono text-zinc-500 dark:text-slate-400 pl-8">
-            {s.id}
-          </p>
         </div>
         
         <div className="flex items-center gap-4">
             <div className="text-right">
-                <p className="text-xs text-zinc-500 dark:text-slate-400 uppercase tracking-widest font-semibold mb-1">Status</p>
+                <p className="text-[10px] text-zinc-400 dark:text-slate-500 uppercase tracking-widest font-bold mb-1.5">Runtime Status</p>
                 <StatusBadge status={s.status} />
             </div>
         </div>
@@ -160,29 +162,43 @@ export default async function SubmissionDetailPage({
 
         {/* Sidebar (Context & Actions) */}
         <div className="space-y-6">
-          <div className="sleek-card glass p-6">
-             <h3 className="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider mb-4">Metadata</h3>
-             <ul className="space-y-4">
+          <div className="sleek-card glass p-6 border-brand-500/10 dark:border-brand-500/5">
+             <h3 className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider mb-5 flex items-center gap-2">
+               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-brand-500">
+                 <path fillRule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 1.838a1.75 1.75 0 0 0 3.391.851.75.75 0 0 0-1.483-.243l-.459-1.838a1.75 1.75 0 0 0-3.391-.851.75.75 0 0 0 1.483.243L9 10.5V9Z" clipRule="evenodd" />
+               </svg>
+               System Context
+             </h3>
+             <ul className="space-y-5">
                 <li>
-                  <div className="text-xs text-zinc-500 dark:text-slate-400 mb-1">Template ID</div>
-                  <div className="text-sm font-mono text-indigo-600 dark:text-indigo-400 truncate">{s.template_id}</div>
+                  <div className="text-[10px] font-bold text-zinc-400 dark:text-slate-500 uppercase tracking-wider mb-1.5">Template Instance</div>
+                  <div className="text-xs font-mono text-brand-600 dark:text-brand-400 truncate bg-brand-50 dark:bg-brand-500/5 px-2.5 py-1.5 rounded-lg border border-brand-100 dark:border-brand-500/10">
+                    {s.template_id}
+                  </div>
                 </li>
                 {s.template_version_id && (
                   <li>
-                    <div className="text-xs text-zinc-500 dark:text-slate-400 mb-1">Version ID</div>
-                    <div className="text-sm font-mono text-zinc-700 dark:text-slate-300 truncate">{s.template_version_id}</div>
+                    <div className="text-[10px] font-bold text-zinc-400 dark:text-slate-500 uppercase tracking-wider mb-1.5">Version Ref</div>
+                    <div className="text-xs font-mono text-zinc-700 dark:text-slate-300 truncate bg-zinc-50 dark:bg-slate-900 px-2.5 py-1.5 rounded-lg border border-zinc-100 dark:border-slate-800">
+                      {s.template_version_id}
+                    </div>
                   </li>
                 )}
                 {s.product_id && (
                   <li>
-                    <div className="text-xs text-zinc-500 dark:text-slate-400 mb-1">Product ID</div>
-                    <div className="text-sm font-mono text-zinc-700 dark:text-slate-300 truncate">{s.product_id}</div>
+                    <div className="text-[10px] font-bold text-zinc-400 dark:text-slate-500 uppercase tracking-wider mb-1.5">Origin Product</div>
+                    <div className="text-xs font-mono text-zinc-700 dark:text-slate-300 truncate bg-zinc-50 dark:bg-slate-900 px-2.5 py-1.5 rounded-lg border border-zinc-100 dark:border-slate-800">
+                      {s.product_id}
+                    </div>
                   </li>
                 )}
                 {s.created_at && (
                   <li>
-                    <div className="text-xs text-zinc-500 dark:text-slate-400 mb-1">Created</div>
-                    <div className="text-sm text-zinc-900 dark:text-white">
+                    <div className="text-[10px] font-bold text-zinc-400 dark:text-slate-500 uppercase tracking-wider mb-1.5">Creation Timestamp</div>
+                    <div className="text-xs font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-zinc-400">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-13a.75.75 0 0 0-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 0 0 0-1.5h-3.25V5Z" clipRule="evenodd" />
+                        </svg>
                         {new Date((s as any).created_at).toLocaleString()}
                     </div>
                   </li>
@@ -190,8 +206,13 @@ export default async function SubmissionDetailPage({
              </ul>
           </div>
 
-          <div className="sleek-card glass p-6">
-             <h3 className="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider mb-4">Actions</h3>
+          <div className="sleek-card p-6 bg-brand-500/5 dark:bg-brand-500/10 border-brand-500/20">
+             <h3 className="text-xs font-bold text-brand-700 dark:text-brand-300 uppercase tracking-wider mb-5 flex items-center gap-2">
+               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                 <path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.23 1.23 0 0 0 .41 1.412A9.957 9.957 0 0 0 10 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 0 0-13.074.003Z" />
+               </svg>
+               Workflow Actions
+             </h3>
              <SubmissionActions tenantId={tenantId} submissionId={submissionId} status={s.status} />
           </div>
         </div>

@@ -15,8 +15,10 @@ export default function TransformRulesPage({
   const [templateId, setTemplateId] = useState("");
   const [sourceVersionId, setSourceVersionId] = useState("");
   const [targetVersionId, setTargetVersionId] = useState("");
+  const [versions, setVersions] = useState<any[]>([]);
   const [list, setList] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingVersions, setLoadingVersions] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -51,8 +53,28 @@ export default function TransformRulesPage({
     }
   }
 
+  async function fetchVersions() {
+    if (!templateId) {
+      setVersions([]);
+      return;
+    }
+    setLoadingVersions(true);
+    try {
+      const data = await portalFetch<any>(
+        `/api/portal/templates/${templateId}?tenantId=${encodeURIComponent(tenantId)}`
+      );
+      setVersions(data.versions || []);
+    } catch (e: any) {
+      console.error("Failed to fetch versions:", e);
+      setVersions([]);
+    } finally {
+      setLoadingVersions(false);
+    }
+  }
+
   useEffect(() => {
     refreshList();
+    fetchVersions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateId]);
 
@@ -124,23 +146,40 @@ export default function TransformRulesPage({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-zinc-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">Source Version ID</label>
-                <input
-                  className="w-full rounded-lg border border-zinc-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm font-mono text-zinc-900 dark:text-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all placeholder:font-sans placeholder:text-zinc-400"
+                <label className="block text-xs font-bold text-zinc-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">Source Version</label>
+                <select
+                  className="w-full rounded-lg border border-zinc-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm font-semibold text-zinc-900 dark:text-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all disabled:opacity-50"
                   value={sourceVersionId}
                   onChange={(e) => setSourceVersionId(e.target.value)}
-                  placeholder="e.g. v1"
-                />
+                  disabled={loadingVersions || versions.length === 0}
+                >
+                  <option value="">Select version...</option>
+                  {versions.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.version_tag} ({v.id.substring(0, 8)})
+                    </option>
+                  ))}
+                </select>
               </div>
               
               <div>
-                <label className="block text-xs font-semibold text-zinc-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">Target Version ID</label>
-                <input
-                  className="w-full rounded-lg border border-zinc-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm font-mono text-zinc-900 dark:text-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all placeholder:font-sans placeholder:text-zinc-400"
+                <label className="block text-xs font-bold text-zinc-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">Target Version</label>
+                <select
+                  className="w-full rounded-lg border border-zinc-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm font-semibold text-zinc-900 dark:text-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all disabled:opacity-50"
                   value={targetVersionId}
                   onChange={(e) => setTargetVersionId(e.target.value)}
-                  placeholder="e.g. v2"
-                />
+                  disabled={loadingVersions || versions.length === 0}
+                >
+                  <option value="">Select version...</option>
+                  {versions.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.version_tag} ({v.id.substring(0, 8)})
+                    </option>
+                  ))}
+                </select>
+                {versions.length === 0 && templateId && !loadingVersions && (
+                  <p className="mt-1.5 text-[10px] text-amber-600 dark:text-amber-400 font-medium">No versions found for this template.</p>
+                )}
               </div>
 
               {error && (

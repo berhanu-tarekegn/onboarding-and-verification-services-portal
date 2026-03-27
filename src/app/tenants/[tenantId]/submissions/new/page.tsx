@@ -140,9 +140,9 @@ export default function NewSubmissionPage({
                         method: "POST",
                         json: { 
                           tenantId, 
-                          payload: values, 
-                          productId,
-                          templateId: (kycSchema as any)._templateId 
+                          form_data: values, 
+                          product_id: productId,
+                          template_id: (kycSchema as any)._templateId 
                         },
                       });
                       router.push(`/tenants/${tenantId}/submissions/${created.id ?? "new"}`);

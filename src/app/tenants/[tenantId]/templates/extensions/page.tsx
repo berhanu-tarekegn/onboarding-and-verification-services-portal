@@ -27,9 +27,9 @@ export default async function TemplateExtensionsPage({
     <div className="space-y-6 max-w-6xl mx-auto">
       <div className="flex justify-between items-center bg-white dark:bg-slate-900 p-6 rounded-xl border border-zinc-200 dark:border-slate-800 shadow-sm">
         <div>
-          <h1 className="text-xl font-bold text-zinc-900 dark:text-white">Tenant Extension</h1>
+          <h1 className="text-xl font-bold text-zinc-900 dark:text-white">Workspace Configuration</h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-slate-400">
-            Define custom fields specific to your workspace on top of the global baseline.
+            Combine your workspace-specific fields with global <span className="font-bold text-indigo-500">Baseline</span> standards.
           </p>
         </div>
         <Link
@@ -52,16 +52,16 @@ export default async function TemplateExtensionsPage({
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
                     <path d="M10.75 6.75a.75.75 0 0 0-1.5 0v2.5h-2.5a.75.75 0 0 0 0 1.5h2.5v2.5a.75.75 0 0 0 1.5 0v-2.5h2.5a.75.75 0 0 0 0-1.5h-2.5v-2.5Z" />
                   </svg>
-                  <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">Tenant Additions</h2>
+                  <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">Workspace Add-ons</h2>
                 </div>
                 {extension && (
-                    <span className="text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200 dark:bg-brand-500/10 dark:text-brand-400 px-2 py-0.5 rounded">
-                        L{extension.baseline_level}
+                    <span className="text-[10px] font-bold bg-brand-50 text-brand-700 border border-brand-200 dark:bg-brand-500/10 dark:text-brand-400 px-2 py-0.5 rounded uppercase tracking-wider">
+                        Compliance Level {extension.baseline_level}
                     </span>
                 )}
             </div>
-            <div className="text-xs text-zinc-500">
-              Only fields defined by workspace <code>{tenantId}</code>
+            <div className="text-[10px] font-medium text-zinc-500 dark:text-slate-400 uppercase tracking-widest">
+              Custom fields defined by <code className="bg-zinc-100 dark:bg-slate-800 px-1 rounded">{tenantId}</code>
             </div>
           </div>
           <div className="p-6 flex-1 overflow-auto bg-zinc-50/30 dark:bg-slate-900/30">
@@ -80,10 +80,19 @@ export default async function TemplateExtensionsPage({
                   </div>
                 </div>
                 
-                <h3 className="text-sm font-semibold text-zinc-700 dark:text-slate-300">Raw Schema Output</h3>
-                <pre className="overflow-auto rounded-xl border border-zinc-200 dark:border-slate-700 bg-zinc-900 p-5 text-xs text-zinc-300 font-mono shadow-inner max-h-[450px]">
-                  {JSON.stringify(extension.schema ?? {}, null, 2)}
-                </pre>
+                <h3 className="text-xs font-bold text-zinc-500 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                   Raw Extension JSON
+                   <span className="h-px flex-1 bg-zinc-200 dark:bg-slate-800"></span>
+                </h3>
+                {(!extension.schema || Object.keys(extension.schema).length === 0) ? (
+                   <div className="p-10 rounded-xl border border-dashed border-zinc-200 dark:border-slate-800 text-center bg-zinc-50/50 dark:bg-slate-950/50">
+                      <p className="text-xs text-zinc-500 dark:text-slate-400 font-medium italic">No custom fields defined in this extension.</p>
+                   </div>
+                ) : (
+                  <pre className="overflow-auto rounded-xl border border-zinc-200 dark:border-slate-700 bg-zinc-900 p-5 text-xs text-zinc-300 font-mono shadow-inner max-h-[450px]">
+                    {JSON.stringify(extension.schema ?? {}, null, 2)}
+                  </pre>
+                )}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-center p-8">
@@ -121,8 +130,8 @@ export default async function TemplateExtensionsPage({
                     </span>
                 )}
             </div>
-            <div className="text-xs text-indigo-600/80 dark:text-indigo-400/80">
-              Final result: Baseline {extension ? "+ Tenant Extension" : ""}
+            <div className="text-[10px] font-medium text-indigo-600/80 dark:text-indigo-400/80 uppercase tracking-widest">
+              Merged Runtime Result: Global Baseline {extension ? "+ Your Extension" : ""}
             </div>
           </div>
           
