@@ -138,6 +138,18 @@ export default function SelectTenantPage() {
                 <p className="text-sm text-zinc-500 dark:text-slate-400">No workspaces available.</p>
               </div>
             )}
+
+            <div className="pt-4 border-t border-zinc-100 dark:border-slate-800 mt-2">
+              <button
+                onClick={() => router.push("/tenants/new")}
+                className="w-full flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-dashed border-zinc-200 dark:border-slate-700 text-zinc-600 dark:text-slate-400 hover:border-brand-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50/50 dark:hover:bg-brand-900/10 transition-all font-medium"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                  <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+                </svg>
+                Create New Workspace
+              </button>
+            </div>
           </div>
         )}
       </div>
