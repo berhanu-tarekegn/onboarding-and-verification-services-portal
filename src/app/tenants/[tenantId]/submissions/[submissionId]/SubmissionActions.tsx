@@ -20,7 +20,7 @@ export function SubmissionActions({
 
   const norm = (status || "DRAFT").toUpperCase();
 
-  const handleAction = async (action: "submit" | "approve" | "reject" | "return") => {
+  const handleAction = async (action: "submit" | "resubmit" | "approve" | "reject" | "return") => {
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -28,6 +28,10 @@ export function SubmissionActions({
       if (action === "submit") {
         await api.submitSubmission(tenantId, submissionId);
         setSuccess("Application submitted for review!");
+      } else if (action === "resubmit") {
+        // RETURNED → submitted via transition (not /submit which only accepts DRAFT)
+        await api.transitionSubmission(tenantId, submissionId, "submitted", "Re-submitted after corrections");
+        setSuccess("Application re-submitted for review!");
       } else {
         const targetStatus = action === "approve" ? "approved" : action === "reject" ? "rejected" : "returned";
         await api.transitionSubmission(tenantId, submissionId, targetStatus, `Transitioned to ${targetStatus} via portal UI`);
@@ -114,9 +118,8 @@ export function SubmissionActions({
         </>
       )}
 
-      {/* RETURNED: can re-submit */}
       {norm === "RETURNED" && (
-        <button disabled={loading} onClick={() => handleAction("submit")}
+        <button disabled={loading} onClick={() => handleAction("resubmit")}
           className="w-full flex items-center justify-center gap-2 rounded-lg bg-zinc-900 dark:bg-white px-4 py-2.5 text-sm font-semibold text-white dark:text-zinc-900 shadow-sm hover:bg-zinc-800 dark:hover:bg-zinc-100 disabled:opacity-50 transition-all">
           {loading ? "Processing..." : "Re-Submit for Review"}
         </button>
