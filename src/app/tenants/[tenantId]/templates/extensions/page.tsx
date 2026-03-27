@@ -88,8 +88,13 @@ export default async function TemplateExtensionsPage({
               <div className="space-y-6">
                 <div className="flex items-center gap-4 border-b border-zinc-200 dark:border-slate-700 pb-4">
                   <div className="flex-1">
-                    <div className="text-base font-bold text-zinc-900 dark:text-white mb-1">{extension.name}</div>
-                    <div className="flex items-center gap-3">
+                    <Link href={`/tenants/${tenantId}/templates/${extension.id}`} className="text-base font-bold text-zinc-900 dark:text-white hover:text-brand-600 dark:hover:text-brand-400 hover:underline mb-1 inline-flex items-center gap-2 group">
+                      {extension.name}
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-zinc-400 group-hover:text-brand-500 opacity-0 group-hover:opacity-100 transition-all -ml-1">
+                        <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clipRule="evenodd" />
+                      </svg>
+                    </Link>
+                    <div className="flex flex-wrap items-center gap-3">
                       <span className="flex items-center gap-1.5 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 px-2 py-0.5 rounded-full">
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
                         PUBLISHED
