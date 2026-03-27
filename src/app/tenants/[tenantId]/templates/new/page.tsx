@@ -14,7 +14,7 @@ function tryParseJson(text: string): { ok: true; value: unknown } | { ok: false;
   }
 }
 
-type FieldType = "text" | "number" | "date" | "select" | "email" | "phone" | "file";
+type FieldType = "text" | "dropdown" | "date" | "checkbox" | "radio" | "fileUpload" | "signature";
 
 interface Field {
   unique_key: string;
@@ -28,6 +28,7 @@ function TemplateBuilderForm({ tenantId }: { tenantId: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const existingTemplateId = searchParams.get("templateId");
+  const baselineId = searchParams.get("baselineId");
   const isNewVersion = !!existingTemplateId;
 
   const [name, setName] = useState("");
@@ -45,6 +46,32 @@ function TemplateBuilderForm({ tenantId }: { tenantId: string }) {
   const [newFieldRequired, setNewFieldRequired] = useState(false);
 
   const parsed = useMemo(() => tryParseJson(schemaText), [schemaText]);
+
+  // Handle seeding from baseline
+  React.useEffect(() => {
+    if (baselineId) {
+      api.getBaselineTemplate(baselineId).then(b => {
+        if (b) {
+          setTemplateType(b.template_type);
+          setBaselineLevel(b.baseline_level);
+          setName(`Extension of ${b.name}`);
+        }
+      });
+    }
+  }, [baselineId]);
+
+  // Handle loading existing template version if editing
+  React.useEffect(() => {
+    if (existingTemplateId) {
+        api.getTemplate(tenantId, existingTemplateId).then(t => {
+            if (t) {
+                setName(t.name);
+                setTemplateType(t.template_type);
+                setBaselineLevel(t.baseline_level);
+            }
+        });
+    }
+  }, [existingTemplateId, tenantId]);
 
   const syncToJson = (currentFields: Field[]) => {
     const json = {
@@ -261,11 +288,12 @@ function TemplateBuilderForm({ tenantId }: { tenantId: string }) {
                         onChange={e => setNewFieldType(e.target.value as FieldType)}
                       >
                         <option value="text">Short Text</option>
-                        <option value="number">Number</option>
+                        <option value="dropdown">Dropdown</option>
                         <option value="date">Date</option>
-                        <option value="email">Email</option>
-                        <option value="select">Dropdown</option>
-                        <option value="file">File Upload</option>
+                        <option value="checkbox">Checkbox</option>
+                        <option value="radio">Radio</option>
+                        <option value="fileUpload">File Upload</option>
+                        <option value="signature">Signature</option>
                       </select>
                     </div>
                     <div className="flex items-center gap-2 pb-2.5">

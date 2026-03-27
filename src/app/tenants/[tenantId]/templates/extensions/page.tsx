@@ -12,7 +12,8 @@ export default async function TemplateExtensionsPage({
   params: Promise<{ tenantId: string }>;
 }) {
   const { tenantId } = await params;
-  const baseline = await api.getBaselineTemplate();
+  const baselines = await api.listBaselineTemplates();
+  const baseline = baselines[0] ? await api.getBaselineTemplate(baselines[0].id) : null;
   const templates = await api.listTemplatesForTenant(tenantId);
   
   // For the preview panel, just pick the first template that has an active version
