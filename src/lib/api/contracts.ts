@@ -38,7 +38,8 @@ export interface ApiClient {
   deactivateProduct(tenantId: Id, productId: Id): Promise<Product>;
 
   // Templates
-  getBaselineTemplate(): Promise<Template | undefined>;
+  listBaselineTemplates(): Promise<Template[]>;
+  getBaselineTemplate(templateId: Id): Promise<Template | undefined>;
   getTenantExtensionTemplate(tenantId: Id): Promise<Template | undefined>;
   listTemplatesForTenant(tenantId: Id): Promise<Template[]>;
   createTemplate(tenantId: Id, input: CreateTemplateInput): Promise<Template>;

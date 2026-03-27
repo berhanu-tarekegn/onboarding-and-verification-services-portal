@@ -84,12 +84,16 @@ export const api: ApiClient = {
       { method: "POST" }
     );
   },
-  async getBaselineTemplate() {
-    const list = await portalFetch<Template[]>("/api/portal/baseline-templates");
-    const baseline = list[0];
+  async listBaselineTemplates() {
+    return await portalFetch<Template[]>("/api/portal/baseline-templates");
+  },
+  async getBaselineTemplate(templateId) {
+    const baseline = await portalFetch<Template>(`/api/portal/baseline-templates/${encodeURIComponent(templateId)}`);
     if (!baseline || !baseline.active_version_id) return baseline;
-    // We need to fetch the definition to get the schema
-    const def = await portalFetch<{ question_groups: any }>(`/api/portal/baseline-templates/${baseline.id}/definitions/${baseline.active_version_id}`);
+    // Fetch the specific definition to get the schema/question_groups
+    const def = await portalFetch<{ question_groups: any }>(
+      `/api/portal/baseline-templates/${baseline.id}/definitions/${baseline.active_version_id}`
+    );
     return { ...baseline, schema: { title: baseline.name, fields: def.question_groups } } as any;
   },
   async getTenantExtensionTemplate(tenantId) {
