@@ -13,12 +13,19 @@ export async function GET(
   const tenantId = queryTenant ?? store.get("active_tenant_id")?.value;
   if (!tenantId) return NextResponse.json({ error: "tenantId required" }, { status: 400 });
 
-  const data = await fastapiRequest({
-    path: `/api/v1/templates/${encodeURIComponent(templateId)}/definitions`,
-    method: "GET",
-    tenantId,
-  });
-  return NextResponse.json(data);
+  try {
+    const data = await fastapiRequest({
+      path: `/api/v1/templates/${encodeURIComponent(templateId)}/definitions`,
+      method: "GET",
+      tenantId,
+    });
+    return NextResponse.json(data);
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error?.message ?? "Failed to fetch definitions" },
+      { status: error?.status ?? 500 }
+    );
+  }
 }
 
 export async function POST(
@@ -36,11 +43,18 @@ export async function POST(
   const tenantId = queryTenant ?? bodyTenant ?? store.get("active_tenant_id")?.value;
   if (!tenantId) return NextResponse.json({ error: "tenantId required" }, { status: 400 });
 
-  const data = await fastapiRequest({
-    path: `/api/v1/templates/${encodeURIComponent(templateId)}/definitions`,
-    method: "POST",
-    tenantId,
-    json,
-  });
-  return NextResponse.json(data);
+  try {
+    const data = await fastapiRequest({
+      path: `/api/v1/templates/${encodeURIComponent(templateId)}/definitions`,
+      method: "POST",
+      tenantId,
+      json,
+    });
+    return NextResponse.json(data);
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error?.message ?? "Failed to create definition" },
+      { status: error?.status ?? 500 }
+    );
+  }
 }

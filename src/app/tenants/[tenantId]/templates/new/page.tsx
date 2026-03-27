@@ -28,8 +28,10 @@ function TemplateBuilderForm({ tenantId }: { tenantId: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const existingTemplateId = searchParams.get("templateId");
-  const baselineId = searchParams.get("baselineId");
-  const isNewVersion = !!existingTemplateId;
+  const baselineIdFromQuery = searchParams.get("baselineId");
+  
+  const [baselineId, setBaselineId] = useState<string | null>(baselineIdFromQuery);
+  const isNewVersion = !!existingTemplateId && !baselineId;
 
   const [name, setName] = useState("");
   const [templateType, setTemplateType] = useState("kyc");
@@ -62,16 +64,27 @@ function TemplateBuilderForm({ tenantId }: { tenantId: string }) {
 
   // Handle loading existing template version if editing
   React.useEffect(() => {
-    if (existingTemplateId) {
+    if (existingTemplateId && !baselineId) { // Only try if we don't already have baselineId
         api.getTemplate(tenantId, existingTemplateId).then(t => {
             if (t) {
                 setName(t.name);
                 setTemplateType(t.template_type);
                 setBaselineLevel(t.baseline_level);
             }
+        }).catch(async (err) => {
+            // If fetching as a tenant template fails, maybe it's a baseline ID (migration/link error)
+            const b = await api.getBaselineTemplate(existingTemplateId).catch(() => null);
+            if (b) {
+                // Auto-correct: treat this as a baseline seed
+                console.log("Auto-correcting: Template ID is actually a baseline ID");
+                setBaselineId(existingTemplateId);
+                setTemplateType(b.template_type);
+                setBaselineLevel(b.baseline_level);
+                setName(`Extension of ${b.name}`);
+            }
         });
     }
-  }, [existingTemplateId, tenantId]);
+  }, [existingTemplateId, baselineId, tenantId]);
 
   const syncToJson = (currentFields: Field[]) => {
     const json = {
