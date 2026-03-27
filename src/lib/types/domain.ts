@@ -33,6 +33,8 @@ export type Template = {
   baseline_level: number;
   is_active: boolean;
   active_version_id?: string;
+  schema?: any;
+  version?: string;
 };
 
 export type SubmissionStatus =
