@@ -29,18 +29,37 @@ export default async function TemplateExtensionsPage({
         <div>
           <h1 className="text-xl font-bold text-zinc-900 dark:text-white">Workspace Configuration</h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-slate-400">
-            Combine your workspace-specific fields with global <span className="font-bold text-indigo-500">Baseline</span> standards.
+            Combine your workspace-specific fields with global{" "}
+            <Link href={`/tenants/${tenantId}/templates/baseline`} className="font-bold text-indigo-500 hover:underline">
+              Baseline
+            </Link>{" "}
+            standards.
           </p>
         </div>
-        <Link
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500 shadow-sm shadow-brand-500/30 transition-all flex items-center gap-2"
-          href={`/tenants/${tenantId}/templates/new`}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-            <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
-          </svg>
-          Edit Extension
-        </Link>
+        {extension ? (
+          // Template exists → show "Add New Version" (not create a brand new template)
+          <Link
+            className="rounded-lg border border-zinc-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-semibold text-zinc-700 dark:text-slate-300 hover:bg-zinc-50 dark:hover:bg-slate-700 transition-all flex items-center gap-2"
+            href={`/tenants/${tenantId}/templates/new`}
+            title="Create a new custom fields template"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+              <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+            </svg>
+            New Template
+          </Link>
+        ) : (
+          // No template yet → create one
+          <Link
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500 shadow-sm shadow-brand-500/30 transition-all flex items-center gap-2"
+            href={`/tenants/${tenantId}/templates/new`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+              <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+            </svg>
+            Create Extension
+          </Link>
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

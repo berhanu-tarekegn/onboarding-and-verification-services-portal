@@ -40,9 +40,14 @@ export function SubmissionActions({
       router.refresh();
     } catch (e: any) {
       const msg = e?.message ?? `Failed to ${action} submission`;
-      // If it's a "already in that state" error, treat as success
-      if (msg.includes("already") || msg.includes("SUBMITTED") || msg.includes("validation_error")) {
-        setSuccess("Already updated — refreshing...");
+      // If backend says it's already in that state, just refresh to show current status
+      if (
+        msg.includes("already") ||
+        msg.includes("validation_error") ||
+        msg.includes("Cannot transition from") ||
+        msg.includes("bad_request")
+      ) {
+        setSuccess("Refreshing current status...");
         router.refresh();
       } else {
         setError(msg);

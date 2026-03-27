@@ -1,4 +1,5 @@
 import { api } from "@/lib/api";
+import Link from "next/link";
 import React from "react";
 
 export default async function BaselineTemplatePage({
@@ -12,12 +13,32 @@ export default async function BaselineTemplatePage({
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex justify-between items-center bg-white dark:bg-slate-900 p-6 rounded-xl border border-zinc-200 dark:border-slate-800 shadow-sm">
-        <div>
-          <h1 className="text-xl font-bold text-zinc-900 dark:text-white">Baseline Template</h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-slate-400">
-            Platform-required baseline template. Tenants can only extend, not modify, this schema.
-          </p>
+        <div className="flex items-center gap-4">
+          <Link
+            href={`/tenants/${tenantId}/templates/extensions`}
+            className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-slate-800 text-zinc-500 transition-colors border border-transparent hover:border-zinc-200 dark:hover:border-slate-700 active:scale-95"
+            title="Back to Workspace Configuration"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+          </Link>
+          <div>
+            <h1 className="text-xl font-bold text-zinc-900 dark:text-white">Baseline Template</h1>
+            <p className="mt-0.5 text-sm text-zinc-500 dark:text-slate-400">
+              Platform-required baseline template. Tenants can only extend, not modify, this schema.
+            </p>
+          </div>
         </div>
+        <Link
+          href={`/tenants/${tenantId}/templates/extensions`}
+          className="rounded-lg border border-brand-300 dark:border-brand-700 bg-brand-50 dark:bg-brand-500/10 px-4 py-2 text-sm font-semibold text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-all flex items-center gap-2"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+            <path d="M10.75 6.75a.75.75 0 0 0-1.5 0v2.5h-2.5a.75.75 0 0 0 0 1.5h2.5v2.5a.75.75 0 0 0 1.5 0v-2.5h2.5a.75.75 0 0 0 0-1.5h-2.5v-2.5Z" />
+          </svg>
+          My Extension
+        </Link>
       </div>
 
       {baseline ? (
