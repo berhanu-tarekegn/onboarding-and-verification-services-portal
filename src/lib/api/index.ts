@@ -53,11 +53,35 @@ export const api: ApiClient = {
       json: { tenantId, ...input },
     });
   },
+  
+  // Template Definitions (Versions)
+  async getTemplate(tenantId, templateId) {
+    return await portalFetch<Template>(
+      `/api/portal/templates/${encodeURIComponent(templateId)}?tenantId=${encodeURIComponent(tenantId)}`
+    );
+  },
+  async listTemplateDefinitions(tenantId, templateId) {
+    return await portalFetch<any[]>(
+      `/api/portal/templates/${encodeURIComponent(templateId)}/definitions?tenantId=${encodeURIComponent(tenantId)}`
+    );
+  },
   async createTemplateDefinition(tenantId, templateId, isDraft, questionGroups) {
     return await portalFetch<any>(`/api/portal/templates/${encodeURIComponent(templateId)}/definitions`, {
       method: "POST",
       json: { tenantId, is_draft: isDraft, question_groups: questionGroups },
     });
+  },
+  async submitTemplateDefinition(tenantId, templateId, versionId) {
+    return await portalFetch<any>(
+      `/api/portal/templates/${encodeURIComponent(templateId)}/definitions/${encodeURIComponent(versionId)}/submit?tenantId=${encodeURIComponent(tenantId)}`, 
+      { method: "POST" }
+    );
+  },
+  async approveAndPublishTemplateDefinition(tenantId, templateId, versionId) {
+    return await portalFetch<any>(
+      `/api/portal/templates/${encodeURIComponent(templateId)}/definitions/${encodeURIComponent(versionId)}/approve+publish?tenantId=${encodeURIComponent(tenantId)}`, 
+      { method: "POST" }
+    );
   },
   async getBaselineTemplate() {
     const list = await portalFetch<Template[]>("/api/portal/baseline-templates");

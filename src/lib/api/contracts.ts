@@ -42,7 +42,13 @@ export interface ApiClient {
   getTenantExtensionTemplate(tenantId: Id): Promise<Template | undefined>;
   listTemplatesForTenant(tenantId: Id): Promise<Template[]>;
   createTemplate(tenantId: Id, input: CreateTemplateInput): Promise<Template>;
+  
+  // Template Definitions (Versions)
+  getTemplate(tenantId: Id, templateId: Id): Promise<Template | undefined>;
+  listTemplateDefinitions(tenantId: Id, templateId: Id): Promise<any[]>;
   createTemplateDefinition(tenantId: Id, templateId: Id, isDraft: boolean, questionGroups: any[]): Promise<any>;
+  submitTemplateDefinition(tenantId: Id, templateId: Id, versionId: string): Promise<any>;
+  approveAndPublishTemplateDefinition(tenantId: Id, templateId: Id, versionId: string): Promise<any>;
 
   // Submissions
   listSubmissions(tenantId: Id): Promise<Submission[]>;
