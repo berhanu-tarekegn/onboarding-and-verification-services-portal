@@ -2,20 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-
-import { api } from "@/lib/api";
-
-function toSchemaName(input: string) {
-  return input
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "")
-    .slice(0, 48);
-}
-
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { PortalShell } from "@/components/portal/PortalShell";
 import { api } from "@/lib/api";
 
