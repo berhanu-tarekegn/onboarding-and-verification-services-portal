@@ -56,13 +56,13 @@ function GroupNode({ group }: { group: any }) {
         </div>
         <div className="flex gap-2 text-xs">
            <span className="bg-zinc-900 px-2 py-0.5 rounded text-zinc-400 font-mono">{group.unique_key}</span>
-           {group.is_tenant_editable === false ? (
+           {group.is_tenant_editable === true ? (
+             <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded">Extension</span>
+           ) : (
               <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded flex items-center gap-1">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3"><path fillRule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clipRule="evenodd" /></svg>
-                Read-only
+                Baseline
               </span>
-           ) : (
-             <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded">Extension</span>
            )}
         </div>
       </div>
@@ -100,13 +100,13 @@ function QuestionNode({ question }: { question: any }) {
         <span className="bg-zinc-800 border border-zinc-700 text-zinc-300 px-2 py-1 rounded">
           {question.field_type}
         </span>
-        {question.is_tenant_editable === false ? (
-          <span className="text-[10px] uppercase font-bold text-zinc-500 bg-zinc-800 px-1.5 py-0.5 rounded" title=" inherited from baseline">
-            Baseline
-          </span>
-        ) : (
+        {question.is_tenant_editable === true ? (
           <span className="text-[10px] uppercase font-bold text-brand-400 bg-brand-500/10 px-1.5 py-0.5 rounded" title="added in extension">
             Extension
+          </span>
+        ) : (
+          <span className="text-[10px] uppercase font-bold text-zinc-500 bg-zinc-800 px-1.5 py-0.5 rounded" title="inherited from baseline">
+            Baseline
           </span>
         )}
       </div>
