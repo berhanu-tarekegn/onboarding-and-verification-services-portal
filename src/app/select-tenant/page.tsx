@@ -49,7 +49,7 @@ export default function SelectTenantPage() {
             <path fillRule="evenodd" d="M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3c0-2.9-2.35-5.25-5.25-5.25Zm3.75 8.25v-3a3.75 3.75 0 1 0-7.5 0v3h7.5Z" clipRule="evenodd" />
           </svg>
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Kifiya Vault</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Smart Vault</h1>
         <p className="mt-1.5 text-sm text-zinc-400 tracking-wide uppercase font-medium">Identity &amp; Verification Platform</p>
       </div>
 
@@ -146,7 +146,7 @@ export default function SelectTenantPage() {
       </div>
 
       <div className="mt-8 text-center text-xs text-zinc-400">
-        <p>&copy; {new Date().getFullYear()} Kifiya Financial Technology</p>
+        <p>&copy; {new Date().getFullYear()} Smart  Financial Technology</p>
         <p className="mt-1">Secure Identity Platform • v2.0.0</p>
       </div>
     </div>

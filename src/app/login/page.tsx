@@ -20,11 +20,11 @@ export default function LoginPage() {
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center bg-zinc-50 p-4 sm:p-6">
       <div className="w-full max-w-[800px] grid lg:grid-cols-2 gap-8 lg:gap-0 bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
-        
+
         {/* Left side: branding/info */}
         <div className="bg-zinc-950 p-10 flex flex-col justify-between hidden lg:flex relative overflow-hidden">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-          
+
           <div className="relative z-10">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-zinc-950 mb-6">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
@@ -34,12 +34,10 @@ export default function LoginPage() {
             <h1 className="text-3xl font-bold tracking-tight text-white mb-2">eKYC Portal</h1>
             <p className="text-zinc-400 font-medium">Multi-tenant Identity Platform</p>
           </div>
-          
+
           <div className="relative z-10">
             <div className="px-5 py-4 bg-zinc-900/50 border border-zinc-800 rounded-xl backdrop-blur-sm">
-              <p className="text-xs text-zinc-400 italic">
-                "Separation of concerns is key. Super admins manage the platform. Tenant admins manage their customers."
-              </p>
+
             </div>
           </div>
         </div>
@@ -94,7 +92,7 @@ export default function LoginPage() {
           </div>
 
           <div className="mt-8 text-center">
-            <p className="text-[11px] text-zinc-400 font-medium tracking-wide uppercase">Mock Authentication Entrypoint</p>
+            <p className="text-[11px] text-zinc-400 font-medium tracking-wide uppercase"></p>
           </div>
         </div>
       </div>
