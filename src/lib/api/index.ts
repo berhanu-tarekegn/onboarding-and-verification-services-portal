@@ -96,6 +96,18 @@ export const api: ApiClient = {
     );
     return { ...baseline, schema: { title: baseline.name, fields: def.question_groups } } as any;
   },
+  async createBaselineTemplate(input: any) {
+    return await portalFetch<Template>("/api/portal/baseline-templates", {
+      method: "POST",
+      json: input,
+    });
+  },
+  async publishBaselineTemplateDefinition(templateId: string, versionId: string) {
+    return await portalFetch<any>(
+      `/api/portal/baseline-templates/${encodeURIComponent(templateId)}/definitions/${encodeURIComponent(versionId)}/publish?set_as_active=true`,
+      { method: "POST" }
+    );
+  },
   async getTenantExtensionTemplate(tenantId) {
     const list = await portalFetch<Template[]>(
       `/api/portal/templates?tenantId=${encodeURIComponent(tenantId)}`

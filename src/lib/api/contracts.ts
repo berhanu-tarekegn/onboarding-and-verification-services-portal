@@ -40,6 +40,9 @@ export interface ApiClient {
   // Templates
   listBaselineTemplates(): Promise<Template[]>;
   getBaselineTemplate(templateId: Id): Promise<Template | undefined>;
+  createBaselineTemplate(input: any): Promise<Template>;
+  publishBaselineTemplateDefinition(templateId: Id, versionId: string): Promise<any>;
+  
   getTenantExtensionTemplate(tenantId: Id): Promise<Template | undefined>;
   listTemplatesForTenant(tenantId: Id): Promise<Template[]>;
   createTemplate(tenantId: Id, input: CreateTemplateInput): Promise<Template>;
