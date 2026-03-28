@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { getMockRole } from "@/lib/rbac/mockRole";
+import { canAccessRoute, type RouteKey } from "@/lib/rbac/roles";
 
 type NavItem = {
   label: string;
@@ -23,10 +25,25 @@ export function PortalShell({
 }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [role, setRole] = useState<string>("unknown");
+  const [mounted, setMounted] = useState(false);
 
-  const NavLinks = () => (
-    <>
-      {nav.map((item) => {
+  useEffect(() => {
+    setRole(getMockRole());
+    setMounted(true);
+  }, []);
+
+  const NavLinks = () => {
+    if (!mounted) return null;
+
+    const visibleNav = nav.filter((item) => {
+      if (!item.routeKey) return true;
+      return canAccessRoute(role as any, item.routeKey as RouteKey);
+    });
+
+    return (
+      <>
+        {visibleNav.map((item) => {
         const isActive =
           pathname.startsWith(item.href) &&
           (item.href !== "/" || pathname === "/");
@@ -45,8 +62,9 @@ export function PortalShell({
           </Link>
         );
       })}
-    </>
-  );
+      </>
+    );
+  };
 
   return (
     <div className="min-h-dvh flex bg-zinc-50">
@@ -72,14 +90,26 @@ export function PortalShell({
 
         {/* User */}
         <div className="border-t border-zinc-200 p-3">
-          <div className="flex items-center gap-3 rounded-md px-2 py-2 hover:bg-zinc-100 transition-colors cursor-pointer">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-white text-xs font-bold">
-              A
+          <div className="flex items-center justify-between gap-2 rounded-md px-2 py-2 hover:bg-zinc-100 transition-colors">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-white text-xs font-bold">
+                {role === "unknown" ? "..." : role === "super_admin" ? "SA" : "TA"}
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm font-medium text-zinc-900 truncate">
+                  {role === "unknown" ? "Loading..." : role === "super_admin" ? "Super Admin" : "Tenant Admin"}
+                </div>
+                <div className="text-xs text-zinc-400 truncate">
+                  {role === "unknown" ? "..." : role === "super_admin" ? "super@kifiya.com" : "admin@tenant.com"}
+                </div>
+              </div>
             </div>
-            <div className="min-w-0">
-              <div className="text-sm font-medium text-zinc-900 truncate">Admin User</div>
-              <div className="text-xs text-zinc-400 truncate">admin@kifiya.com</div>
-            </div>
+            
+            <Link href="/login" onClick={() => { localStorage.removeItem("mock_role"); }} className="text-zinc-400 hover:text-red-500 transition-colors p-1" title="Sign Out">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+              </svg>
+            </Link>
           </div>
         </div>
       </aside>

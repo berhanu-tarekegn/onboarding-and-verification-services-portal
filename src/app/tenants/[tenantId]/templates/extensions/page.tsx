@@ -4,7 +4,6 @@ import type { FormSchema } from "@/lib/types/domain";
 import Link from "next/link";
 import React from "react";
 import { portalFetch } from "@/lib/api/client";
-import { SchemaTreeView } from "./SchemaTreeView";
 
 export default async function TemplateExtensionsPage({
   params,
@@ -15,19 +14,19 @@ export default async function TemplateExtensionsPage({
   const baselines = await api.listBaselineTemplates();
   const baseline = baselines[0] ? await api.getBaselineTemplate(baselines[0].id) : null;
   const templates = await api.listTemplatesForTenant(tenantId);
-  
+
   const firstActive = templates.find(t => t.active_version_id);
-  
+
   let firstExtensionWithSchema = null;
   if (firstActive) {
     const def = await portalFetch<{ question_groups: any }>(
       `/api/portal/templates/${firstActive.id}/definitions/${firstActive.active_version_id}?tenantId=${encodeURIComponent(tenantId)}`
     ).catch(() => null);
-    
+
     if (def && typeof def === 'object' && 'question_groups' in def) {
       firstExtensionWithSchema = {
-         ...firstActive,
-         schema: { title: firstActive.name, fields: def.question_groups }
+        ...firstActive,
+        schema: { title: firstActive.name, fields: def.question_groups }
       };
     }
   }
@@ -35,9 +34,9 @@ export default async function TemplateExtensionsPage({
   const effective: FormSchema | undefined =
     baseline && firstExtensionWithSchema && baseline.schema && firstExtensionWithSchema.schema
       ? mergeEffectiveSchema({
-          baseline: baseline.schema as FormSchema,
-          extension: firstExtensionWithSchema.schema as FormSchema,
-        })
+        baseline: baseline.schema as FormSchema,
+        extension: firstExtensionWithSchema.schema as FormSchema,
+      })
       : baseline?.schema
         ? (baseline.schema as FormSchema)
         : undefined;
@@ -81,7 +80,7 @@ export default async function TemplateExtensionsPage({
               Extensions for <code className="lowercase bg-zinc-200 px-1 rounded text-zinc-700">{tenantId}</code>
             </p>
           </div>
-          
+
           <div className="p-5 flex-1 overflow-auto bg-white space-y-3">
             {templates.length > 0 ? (
               templates.map(ext => (
@@ -105,7 +104,7 @@ export default async function TemplateExtensionsPage({
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-500">
                       <div className="flex items-center gap-1.5 bg-zinc-100 px-1.5 py-0.5 rounded">
-                        <span className="font-medium">{ext.template_type.toUpperCase()}</span> 
+                        <span className="font-medium">{ext.template_type.toUpperCase()}</span>
                         <span className="text-zinc-300">•</span>
                         <span>L{ext.baseline_level}</span>
                       </div>
@@ -150,10 +149,12 @@ export default async function TemplateExtensionsPage({
               Baseline {firstExtensionWithSchema ? "+ Active Extension" : "Only"}
             </div>
           </div>
-          
+
           <div className="p-4 flex-1 overflow-auto bg-zinc-900">
             {effective ? (
-              <SchemaTreeView schema={effective} />
+              <pre className="text-[11px] leading-snug text-zinc-300 font-mono h-full">
+                {JSON.stringify(effective, null, 2)}
+              </pre>
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-center p-8">
                 <div className="h-10 w-10 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 mb-3">
