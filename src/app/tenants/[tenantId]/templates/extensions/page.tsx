@@ -4,6 +4,7 @@ import type { FormSchema } from "@/lib/types/domain";
 import Link from "next/link";
 import React from "react";
 import { portalFetch } from "@/lib/api/client";
+import { SchemaTreePreview } from "@/components/schema/SchemaTreePreview";
 
 export default async function TemplateExtensionsPage({
   params,
@@ -130,17 +131,17 @@ export default async function TemplateExtensionsPage({
         </div>
 
         {/* Right Side: Effective Schema Preview */}
-        <div className="rounded-lg border border-zinc-200 bg-zinc-900 flex flex-col h-[700px] overflow-hidden">
-          <div className="border-b border-zinc-800 bg-zinc-950 px-5 py-4 flex flex-col">
+        <div className="rounded-lg border border-zinc-200 bg-white flex flex-col h-[700px] overflow-hidden">
+          <div className="border-b border-zinc-100 bg-zinc-50 px-5 py-4 flex flex-col">
             <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-2 text-white">
+              <div className="flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-zinc-400">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z" />
                 </svg>
-                <h2 className="text-sm font-semibold text-white">Effective Schema Preview</h2>
+                <h2 className="text-sm font-semibold text-zinc-900">Effective Schema Preview</h2>
               </div>
               {effective && (
-                <span className="text-[10px] font-bold bg-white text-zinc-900 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="text-[10px] font-bold bg-zinc-900 text-white px-2 py-0.5 rounded-full uppercase tracking-wider">
                   Merged
                 </span>
               )}
@@ -150,20 +151,18 @@ export default async function TemplateExtensionsPage({
             </div>
           </div>
 
-          <div className="p-4 flex-1 overflow-auto bg-zinc-900">
+          <div className="flex-1 overflow-auto">
             {effective ? (
-              <pre className="text-[11px] leading-snug text-zinc-300 font-mono h-full">
-                {JSON.stringify(effective, null, 2)}
-              </pre>
+              <SchemaTreePreview schema={effective as any} />
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                <div className="h-10 w-10 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 mb-3">
+                <div className="h-10 w-10 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-400 mb-3">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
-                <div className="text-sm font-medium text-zinc-400">Preview Unavailable</div>
-                <div className="mt-1 text-xs text-zinc-600 max-w-[200px]">
+                <div className="text-sm font-medium text-zinc-600">Preview Unavailable</div>
+                <div className="mt-1 text-xs text-zinc-400 max-w-[200px]">
                   Could not merge baseline. It might be missing.
                 </div>
               </div>
