@@ -2,6 +2,7 @@ import { api } from "@/lib/api";
 import Link from "next/link";
 import React from "react";
 import { DefinitionActions } from "./DefinitionActions";
+import { SchemaTreeView } from "../extensions/SchemaTreeView";
 
 export default async function TemplateDetailPage({
   params,
@@ -73,8 +74,8 @@ export default async function TemplateDetailPage({
         </Link>
       </div>
 
-      <div className="sleek-card glass overflow-hidden">
-        <div className="border-b border-zinc-200 dark:border-slate-700 bg-zinc-50/50 dark:bg-slate-900/50 px-6 py-4 flex items-center justify-between">
+      <div className="sleek-card glass">
+        <div className="border-b border-zinc-200 dark:border-slate-700 bg-zinc-50/50 dark:bg-slate-900/50 px-6 py-4 flex items-center justify-between rounded-t-2xl">
             <div className="flex items-center gap-2 text-brand-600 dark:text-brand-400">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
                     <path fillRule="evenodd" d="M10 2c-1.716 0-3.408.106-5.07.31C4.93 2.317 4 3.192 4 4.22v11.554c0 1.033.93 1.908 1.93 1.912 3.336.013 6.806.013 10.14 0 1 .004 1.93-.88 1.93-1.912V4.22c0-1.033-.93-1.908-1.93-1.912A41.206 41.206 0 0 0 10 2Zm3.25 5a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 .75.75v.5a.75.75 0 0 1-.75.75h-.5a.75.75 0 0 1-.75-.75V7Zm-5.5 0a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 .75.75v.5a.75.75 0 0 1-.75.75h-.5a.75.75 0 0 1-.75-.75V7Zm-2.5 4.5a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 .75.75v.5a.75.75 0 0 1-.75.75h-.5a.75.75 0 0 1-.75-.75v-.5Zm5.5 0a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 .75.75v.5a.75.75 0 0 1-.75.75h-.5a.75.75 0 0 1-.75-.75v-.5Z" clipRule="evenodd" />
@@ -110,7 +111,7 @@ export default async function TemplateDetailPage({
               const colorClass = statusColors[status.toUpperCase()] || statusColors.DRAFT;
 
               return (
-                <div key={def.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-zinc-50/50 dark:hover:bg-slate-800/20 transition-colors">
+                <div key={def.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-zinc-50/50 dark:hover:bg-slate-800/20 transition-colors last:rounded-b-2xl">
                   <div>
                     <div className="flex items-center gap-3 mb-1">
                       <span className="font-mono font-bold text-zinc-900 dark:text-white">
@@ -146,8 +147,8 @@ export default async function TemplateDetailPage({
                             </svg>
                             View Fields
                         </summary>
-                        <div className="absolute right-0 top-full mt-2 w-72 max-h-64 overflow-auto p-3 bg-zinc-900 rounded-lg shadow-xl text-zinc-300 font-mono text-[10px] border border-zinc-700 hidden group-open:block origin-top-right">
-                           {JSON.stringify(def.question_groups, null, 2)}
+                        <div className="absolute right-0 top-full mt-2 w-[450px] max-h-96 overflow-auto p-1 bg-zinc-950 rounded-xl shadow-2xl border border-zinc-800 hidden group-open:block origin-top-right z-50">
+                           <SchemaTreeView schema={{ title: "Version Fields", fields: def.question_groups }} />
                         </div>
                     </details>
                     

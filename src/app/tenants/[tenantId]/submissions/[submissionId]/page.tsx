@@ -1,4 +1,5 @@
 import { api } from "@/lib/api";
+import { cookies } from "next/headers";
 import Link from "next/link";
 import React from "react";
 
@@ -61,6 +62,25 @@ export default async function SubmissionDetailPage({
   params: Promise<{ tenantId: string; submissionId: string }>;
 }) {
   const { tenantId, submissionId } = await params;
+
+  // Determine the current logged-in user from the session cookie.
+  // We decode the JWT `sub` claim client-side to avoid an extra /me round-trip.
+  let currentUserId: string | null = null;
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("access_token")?.value;
+    if (token) {
+      // Safely decode the JWT payload (base64url, middle segment).
+      const payloadB64 = token.split(".")[1];
+      if (payloadB64) {
+        const json = JSON.parse(Buffer.from(payloadB64, "base64url").toString("utf-8"));
+        currentUserId = json?.sub ?? json?.preferred_username ?? null;
+      }
+    }
+  } catch {
+    // Auth disabled or token absent — isOwner stays false.
+  }
+
   let s;
   try {
     s = await api.getSubmission(tenantId, submissionId);
@@ -213,7 +233,12 @@ export default async function SubmissionDetailPage({
                </svg>
                Workflow Actions
              </h3>
-             <SubmissionActions tenantId={tenantId} submissionId={submissionId} status={s.status} />
+             <SubmissionActions
+                tenantId={tenantId}
+                submissionId={submissionId}
+                status={s.status}
+                isOwner={!!(currentUserId && (s as any).created_by && currentUserId === (s as any).created_by)}
+              />
           </div>
         </div>
       </div>

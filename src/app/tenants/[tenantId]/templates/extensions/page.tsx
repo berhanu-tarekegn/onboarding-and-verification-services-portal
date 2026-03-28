@@ -4,6 +4,7 @@ import type { FormSchema } from "@/lib/types/domain";
 import Link from "next/link";
 import React from "react";
 import { portalFetch } from "@/lib/api/client";
+import { SchemaTreeView } from "./SchemaTreeView";
 
 export default async function TemplateExtensionsPage({
   params,
@@ -152,9 +153,7 @@ export default async function TemplateExtensionsPage({
           
           <div className="p-4 flex-1 overflow-auto bg-zinc-900">
             {effective ? (
-              <pre className="text-[11px] leading-snug text-zinc-300 font-mono h-full">
-                {JSON.stringify(effective, null, 2)}
-              </pre>
+              <SchemaTreeView schema={effective} />
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-center p-8">
                 <div className="h-10 w-10 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 mb-3">

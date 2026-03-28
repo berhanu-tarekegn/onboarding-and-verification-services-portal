@@ -8,17 +8,24 @@ export function SubmissionActions({
   tenantId,
   submissionId,
   status,
+  isOwner = false,
 }: {
   tenantId: string;
   submissionId: string;
   status: string;
+  /** True when the current user is the one who created this submission (four-eyes rule). */
+  isOwner?: boolean;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  // Set to true when the backend confirms a four-eyes violation so buttons hide immediately.
+  const [fourEyesBlocked, setFourEyesBlocked] = useState(false);
 
   const norm = (status || "DRAFT").toUpperCase();
+  /** True if this user must not be shown review actions. */
+  const ownerBlocked = isOwner || fourEyesBlocked;
 
   const handleAction = async (action: "submit" | "resubmit" | "approve" | "reject" | "return") => {
     setLoading(true);
@@ -29,7 +36,6 @@ export function SubmissionActions({
         await api.submitSubmission(tenantId, submissionId);
         setSuccess("Application submitted for review!");
       } else if (action === "resubmit") {
-        // RETURNED → submitted via transition (not /submit which only accepts DRAFT)
         await api.transitionSubmission(tenantId, submissionId, "submitted", "Re-submitted after corrections");
         setSuccess("Application re-submitted for review!");
       } else {
@@ -40,8 +46,10 @@ export function SubmissionActions({
       router.refresh();
     } catch (e: any) {
       const msg = e?.message ?? `Failed to ${action} submission`;
-      // If backend says it's already in that state, just refresh to show current status
-      if (
+      if (msg.includes("four_eyes_violation")) {
+        setFourEyesBlocked(true);
+        setError(null); // banner replaces the error message
+      } else if (
         msg.includes("already") ||
         msg.includes("validation_error") ||
         msg.includes("Cannot transition from") ||
@@ -56,6 +64,21 @@ export function SubmissionActions({
       setLoading(false);
     }
   };
+
+  /** Review actions (approve/reject/return) blocked for the submission owner. */
+  const ReviewBlockedBanner = () => (
+    <div className="rounded-lg border border-blue-200 dark:border-blue-500/20 bg-blue-50 dark:bg-blue-500/10 px-4 py-3 flex items-start gap-3">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-blue-500 shrink-0 mt-0.5">
+        <path fillRule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 1.838a1.75 1.75 0 0 0 3.391.851.75.75 0 0 0-1.483-.243l-.459-1.838a1.75 1.75 0 0 0-3.391-.851.75.75 0 0 0 1.483.243L9 10.5V9Z" clipRule="evenodd" />
+      </svg>
+      <div>
+        <p className="text-xs font-semibold text-blue-700 dark:text-blue-300">Awaiting a second reviewer</p>
+        <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">
+          Four-eyes policy: this submission was created by you and must be reviewed by a different user.
+        </p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-3">
@@ -79,47 +102,59 @@ export function SubmissionActions({
         </button>
       )}
 
-      {/* SUBMITTED: awaiting admin review — show review actions */}
+      {/* SUBMITTED: awaiting admin review */}
       {norm === "SUBMITTED" && (
         <>
           <div className="rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 px-3 py-2 text-xs text-amber-700 dark:text-amber-400 flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 shrink-0"><path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-13a.75.75 0 0 0-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 0 0 0-1.5h-3.25V5Z" clipRule="evenodd" /></svg>
             Awaiting admin review
           </div>
-          <button disabled={loading} onClick={() => handleAction("approve")}
-            className="w-full flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50 transition-all">
-            {loading ? "Processing..." : "Approve Application"}
-          </button>
-          <div className="flex gap-2">
-            <button disabled={loading} onClick={() => handleAction("reject")}
-              className="flex-1 flex items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-700 px-3 py-2 text-sm font-semibold hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 disabled:opacity-50">
-              Reject
-            </button>
-            <button disabled={loading} onClick={() => handleAction("return")}
-              className="flex-1 flex items-center justify-center rounded-lg border border-amber-200 bg-amber-50 text-amber-700 px-3 py-2 text-sm font-semibold hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 disabled:opacity-50">
-              Return
-            </button>
-          </div>
+          {ownerBlocked ? (
+            <ReviewBlockedBanner />
+          ) : (
+            <>
+              <button disabled={loading} onClick={() => handleAction("approve")}
+                className="w-full flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50 transition-all">
+                {loading ? "Processing..." : "Approve Application"}
+              </button>
+              <div className="flex gap-2">
+                <button disabled={loading} onClick={() => handleAction("reject")}
+                  className="flex-1 flex items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-700 px-3 py-2 text-sm font-semibold hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 disabled:opacity-50">
+                  Reject
+                </button>
+                <button disabled={loading} onClick={() => handleAction("return")}
+                  className="flex-1 flex items-center justify-center rounded-lg border border-amber-200 bg-amber-50 text-amber-700 px-3 py-2 text-sm font-semibold hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 disabled:opacity-50">
+                  Return
+                </button>
+              </div>
+            </>
+          )}
         </>
       )}
 
       {/* UNDER_REVIEW: same review actions */}
       {norm === "UNDER_REVIEW" && (
         <>
-          <button disabled={loading} onClick={() => handleAction("approve")}
-            className="w-full flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50 transition-all">
-            {loading ? "Processing..." : "Approve Application"}
-          </button>
-          <div className="flex gap-2">
-            <button disabled={loading} onClick={() => handleAction("reject")}
-              className="flex-1 flex items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-700 px-3 py-2 text-sm font-semibold hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 disabled:opacity-50">
-              Reject
-            </button>
-            <button disabled={loading} onClick={() => handleAction("return")}
-              className="flex-1 flex items-center justify-center rounded-lg border border-amber-200 bg-amber-50 text-amber-700 px-3 py-2 text-sm font-semibold hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 disabled:opacity-50">
-              Return
-            </button>
-          </div>
+          {ownerBlocked ? (
+            <ReviewBlockedBanner />
+          ) : (
+            <>
+              <button disabled={loading} onClick={() => handleAction("approve")}
+                className="w-full flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50 transition-all">
+                {loading ? "Processing..." : "Approve Application"}
+              </button>
+              <div className="flex gap-2">
+                <button disabled={loading} onClick={() => handleAction("reject")}
+                  className="flex-1 flex items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-700 px-3 py-2 text-sm font-semibold hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 disabled:opacity-50">
+                  Reject
+                </button>
+                <button disabled={loading} onClick={() => handleAction("return")}
+                  className="flex-1 flex items-center justify-center rounded-lg border border-amber-200 bg-amber-50 text-amber-700 px-3 py-2 text-sm font-semibold hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 disabled:opacity-50">
+                  Return
+                </button>
+              </div>
+            </>
+          )}
         </>
       )}
 
